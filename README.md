@@ -1,15 +1,37 @@
-# SCAREE – 4-player co-op horror (PWA)
-Stack: HTML + JavaScript (ES modules) + Bootstrap 5 + Three.js, Firebase Auth + Realtime Database.
+# SCAREE – Co-op Horror PWA
 
-## Firebase setup (console.firebase.google.com > project scaree-57b06)
-1. Build > Authentication > Sign-in method: enable **Email/Password** and **Google**.
-2. Authentication > Settings > Authorized domains: add `<your-username>.github.io`.
-3. Build > Realtime Database > Create database (Singapore). The URL is already set in `js/firebase-config.js`.
-4. Realtime Database > Rules: paste `database.rules.json` and **Publish**.
+Polished version with **Granny / Slenderman-inspired visuals**.
 
-## Deploy on GitHub Pages
-Push all files to a repo root > Settings > Pages > Deploy from branch `main` / root. Open the https URL on your phone and use "Add to Home Screen / Install".
+Tall thin stalkers with glowing red eyes, floating translucent wraiths, low crawling horrors, dirty blood-stained asylum walls, heavy fog, dust motes, proximity static (Slenderman style), and strong jumpscares with a detailed screaming face.
+
+## Features
+
+- Up to 4-player co-op via Firebase
+- Full Solo mode
+- 7 chapters
+- Music boxes, Fire Axe, batteries, flares, journal notes
+- Enemies: Stalker, Wraith (light-weak), Crawler, final Warden boss
+- Offline support after first load
+- Mobile + desktop controls
 
 ## Controls
-Desktop: click to lock mouse, WASD, Shift sprint, F flashlight. Mobile: left joystick, drag right side to look, 🔦 and 🏃 buttons. Use headphones.
-Local testing needs a server (e.g. `npx serve`), not file://.
+
+**Desktop:** Click canvas to lock mouse · WASD · Shift sprint · F flashlight · E interact · R flare · Click/Space attack  
+
+**Mobile:** Left stick · drag right side to look · 🔦 🏃 ⚔ ✋ 🕯  
+
+Use headphones.
+
+## Firebase setup
+
+1. Enable Email/Password + Google sign-in
+2. Add your domain to Authorized domains
+3. Publish the rules from `database.rules.json`
+
+## Run locally
+
+```bash
+npx serve .
+```
+
+Then open the URL and install as PWA if desired.
