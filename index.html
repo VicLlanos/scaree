@@ -49,7 +49,6 @@
     <h2 class="title text-center">Room <span id="lobCode"></span></h2>
     <p class="text-center small text-secondary">Share this code. Max 4 players.</p>
     <ul id="lobPlayers" class="list-group mb-3"></ul>
-    <select id="startLvl" class="form-select mb-2 d-none"></select>
     <button id="btnStart" class="btn btn-danger d-none">Enter the Asylum</button>
     <div id="lobWait" class="text-center text-secondary small">Waiting for host to start…</div>
     <button id="btnLeave" class="btn btn-sm btn-link text-secondary mt-2">Leave</button>
@@ -60,13 +59,12 @@
   <canvas id="cv"></canvas>
   <div id="hud">
     <div id="hudTop"><span id="hudKeys"></span><span id="hudHp"></span><span id="hudRoom"></span></div>
-    <div id="hudMsg"></div><div id="prompt"></div><div id="story"></div>
+    <div id="hudMsg"></div>
   </div>
   <div id="joy"><div id="knob"></div></div>
   <button id="btnLight" class="ctl">🔦</button>
-  <button id="btnRun" class="ctl">🏃</button><button id="btnAtk" class="ctl">⚔</button><button id="btnUse" class="ctl">✋</button><button id="btnFlare" class="ctl">🕯</button>
+  <button id="btnRun" class="ctl">🏃</button>
 </section>
-<div id="note" class="d-none"></div>
 <div id="endOverlay" class="d-none">
   <div class="text-center"><h1 id="endTitle" class="title"></h1><p id="endText"></p>
   <button id="btnBack" class="btn btn-danger d-none">Back to lobby</button>
@@ -76,7 +74,7 @@
 <div id="flash"></div>
 <div id="grain"></div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-<script type="module" src="js/main.js?v=4"></script>
+<script type="module" src="js/main.js"></script>
 <script>if('serviceWorker' in navigator)addEventListener('load',()=>navigator.serviceWorker.register('sw.js'))</script>
 </body>
 </html>

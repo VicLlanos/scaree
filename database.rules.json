@@ -11,7 +11,7 @@
           ".validate": "newData.isString() && newData.val().length <= 20"
         },
         "bestLevel": {
-          ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 7"
+          ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 3"
         },
         "wins": {
           ".validate": "newData.isNumber() && newData.val() >= 0"
@@ -38,11 +38,23 @@
         },
         "level": {
           ".write": "auth != null && data.parent().child('host').val() === auth.uid",
-          ".validate": "newData.isNumber() && newData.val() >= 1 && newData.val() <= 7"
+          ".validate": "newData.isNumber() && newData.val() >= 1 && newData.val() <= 3"
         },
         "seed": {
           ".write": "auth != null && data.parent().child('host').val() === auth.uid",
           ".validate": "newData.isNumber()"
+        },
+        "enemy": {
+          ".write": "auth != null && data.parent().child('host').val() === auth.uid",
+          "x": {
+            ".validate": "newData.isNumber()"
+          },
+          "z": {
+            ".validate": "newData.isNumber()"
+          },
+          "$other": {
+            ".validate": false
+          }
         },
         "players": {
           "$uid": {
@@ -87,47 +99,6 @@
           "$s": {
             ".write": "auth != null && ((!data.exists() && newData.val() === auth.uid) || (data.val() === auth.uid && !newData.exists()))",
             ".validate": "$s.matches(/^s[0-3]$/) && newData.isString()"
-          }
-        },
-        "enemies": {
-          ".write": "auth != null && data.parent().child('host').val() === auth.uid",
-          "$i": {
-            ".validate": "$i.matches(/^[0-5]$/)",
-            "x": {
-              ".validate": "newData.isNumber()"
-            },
-            "z": {
-              ".validate": "newData.isNumber()"
-            },
-            "hp": {
-              ".validate": "newData.isNumber()"
-            },
-            "$other": {
-              ".validate": false
-            }
-          }
-        },
-        "acts": {
-          "$u": {
-            ".write": "auth != null && auth.uid === $u",
-            "n": {
-              ".validate": "newData.isNumber()"
-            },
-            "k": {
-              ".validate": "newData.isString() && newData.val().matches(/^[hf]$/)"
-            },
-            "i": {
-              ".validate": "newData.isNumber()"
-            },
-            "x": {
-              ".validate": "newData.isNumber()"
-            },
-            "z": {
-              ".validate": "newData.isNumber()"
-            },
-            "$other": {
-              ".validate": false
-            }
           }
         }
       }

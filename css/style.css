@@ -23,11 +23,3 @@ body.touch .ctl{display:block;position:absolute;right:24px;width:60px;height:60p
 #flash.on{animation:fl .5s steps(3)}
 @keyframes fl{0%{opacity:1;background:#fff}50%{opacity:.8;background:#900}100%{opacity:0}}
 #endOverlay{position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:40;display:flex;align-items:center;justify-content:center}
-
-#prompt{position:absolute;bottom:22%;width:100%;text-align:center;color:#ffd;text-shadow:0 0 6px #000;font-size:1.1rem}
-#story{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:2rem;background:rgba(0,0,0,.78);opacity:0;transition:opacity 1.5s;pointer-events:none;font-family:Georgia,serif}
-#story.on{opacity:1}#story h2{color:#b00;letter-spacing:.2em;text-shadow:0 0 12px #f00}#story p{max-width:520px;color:#ccc}#story small{color:#888}
-#note{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);max-width:min(90vw,440px);background:#d9d2b8;color:#2a2418;padding:1.2rem;z-index:35;font-family:Georgia,serif;box-shadow:0 0 40px #000;transform:translate(-50%,-50%) rotate(-1.5deg)}
-body.touch #btnAtk{bottom:calc(24px + env(safe-area-inset-bottom));right:96px}
-body.touch #btnUse{bottom:calc(100px + env(safe-area-inset-bottom));right:96px}
-body.touch #btnFlare{bottom:calc(176px + env(safe-area-inset-bottom));right:24px}
