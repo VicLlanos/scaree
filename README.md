@@ -45,6 +45,17 @@ Push all files to repo root → Settings → Pages → Deploy from `main` / root
 npx serve .
 ```
 
+## Progressive Web App (PWA)
+
+This game is a full PWA — installable on phones and tablets:
+
+1. Open the site in **Chrome** (Android) or **Safari** (iOS).
+2. Android: tap the install banner, or menu → **Install app** / **Add to Home screen**.
+3. iOS Safari: Share → **Add to Home Screen**.
+4. Launch from the home screen for fullscreen landscape play with offline caching of assets.
+
+Service worker caches all game files. Firebase still needs a network connection for multiplayer.
+
 ## Controls
 
 | Action | Desktop | Mobile |
