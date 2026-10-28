@@ -2,7 +2,7 @@ import {initializeApp} from "https://www.gstatic.com/firebasejs/10.12.2/firebase
 import {getAnalytics} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-analytics.js";
 import {getAuth,onAuthStateChanged,signInWithEmailAndPassword,createUserWithEmailAndPassword,GoogleAuthProvider,signInWithPopup,signOut,updateProfile} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import {getDatabase,ref,set,get,update,onValue,onDisconnect,remove,serverTimestamp} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
-import {firebaseConfig} from "./firebase-config.js?v=5";
+import {firebaseConfig} from "./firebase-config.js?v=4";
 
 const T = THREE, S = 3, $ = id => document.getElementById(id);
 const app = initializeApp(firebaseConfig); try { getAnalytics(app); } catch (e) {}
@@ -16,27 +16,16 @@ const nm = () => (user.displayName || user.email?.split('@')[0] || 'Survivor').s
 const pl = () => ({name: nm(), x: 0, z: 0, ry: 0, hp: 3});
 
 const CH = [
- {n: 'Admissions', fog: 0x000000, wall: '#3b3a35', mon: ['S'], intro: `St. Mercy Asylum closed in 1974. Tonight a child's lullaby crackled over every radio in town. You followed it inside. The doors just locked behind you. Something called the Warden walks these halls. Wind the music boxes to silence the lullaby and break the lock.`, notes: ['Admissions ledger: 212 patients admitted. 0 discharged. Dr. Voss signs every page.', `Voss: "Fear is a current. I mean to harness it." The Board refused him. The Board is no longer with us.`]},
+ {n: 'Admissions', fog: 0x000000, wall: '#3b3a35', mon: ['S'], intro: `St. Mercy Asylum closed in 1974. Tonight a child's lullaby crackled over every radio in town. You followed it inside. The doors just locked behind you.`, notes: ['Admissions ledger: 212 patients admitted. 0 discharged. Dr. Voss signs every page.', `Voss: "Fear is a current. I mean to harness it." The Board refused him. The Board is no longer with us.`]},
  {n: 'The Patient Wards', fog: 0x020a04, wall: '#35403a', mon: ['S', 'C'], intro: 'Rows of cells, doors ripped from their hinges. Something small skitters inside the walls, and something tall keeps pace with you.', notes: ['Ward nurse: They stopped screaming on the third night. That was worse.', 'Patient 77 scratched one sentence into the plaster: "He is not keeping us. He is feeding on us."']},
- {n: 'The Flooded Basement', fog: 0x02060a, wall: '#2a3a45', mon: ['S', 'W'], intro: 'Black water to your ankles. Voss sealed his failures down here. Some of them still drift, the Choir, children Voss could not silence, and they do not need doors. Light drives them back.', notes: ['Maintenance log: pumps off by order of Dr. Voss. "Let the cold keep them quiet."', `A drowned girl's drawing: a tall man, a choir of children, and a heart in the dark.`]},
+ {n: 'The Flooded Basement', fog: 0x02060a, wall: '#2a3a45', mon: ['S', 'W'], intro: 'Black water to your ankles. Voss sealed his failures down here. Some of them still drift, and they do not need doors.', notes: ['Maintenance log: pumps off by order of Dr. Voss. "Let the cold keep them quiet."', `A drowned girl's drawing: a tall man, a choir of children, and a heart in the dark.`]},
  {n: `The Children's Ward`, fog: 0x0a0204, wall: '#4a3a3a', mon: ['W', 'C', 'S'], intro: 'Tiny beds. Music boxes wind themselves. The lullaby is louder here, and it knows your names.', notes: ['The Lullaby Project: sixty children, one song, one purpose. Fear that never fades.', 'Voss to the children: "Sing, and you will never be alone." They sang. They still do.']},
  {n: 'The Surgery Theatre', fog: 0x040404, wall: '#3a4545', mon: ['S', 'W', 'C', 'C'], intro: 'The lamp above the table swings though no air moves. Whatever Voss learned, he learned here.', notes: ['Surgical notes: the fear can be extracted. It can be stored. It can be fed to something.', 'His last entry: "The Warden obeys me. The Choir obeys the Warden. The Heart obeys no one."']},
  {n: 'The Chapel Catacombs', fog: 0x050208, wall: '#3a3545', mon: ['S', 'S', 'W', 'W', 'C'], intro: 'Candles burn without wax. Bones are stacked in the shape of a heart. The lullaby has become a hymn.', notes: ['Voss buried himself alive here, willingly, to become the Heart.', 'Carved into the altar: "Burn the heart with light, and the children will sleep."']},
- {n: 'The Heart of Voss', fog: 0x0a0000, wall: '#4a2020', mon: ['B', 'S', 'W', 'C'], intro: 'The walls pulse. The Warden is no longer his servant. It is his body. The exit stays sealed until the Warden falls. Cut it down, then wind the last music box and run.', notes: ['A child\'s voice, very faint: "Please. Let us sleep."', 'The final page is blank except for one word in your own handwriting: "Stay."']}
+ {n: 'The Heart of Voss', fog: 0x0a0000, wall: '#4a2020', mon: ['B', 'S', 'W', 'C'], intro: 'The walls pulse. The Warden is no longer his servant. It is his body. Burn it, cut it, then run for the last door.', notes: ['A child\'s voice, very faint: "Please. Let us sleep."', 'The final page is blank except for one word in your own handwriting: "Stay."']}
 ];
-const PROLOGUE = ['1974. St. Mercy Asylum. Dr. Elias Voss swore he could cure fear.', 'He built a machine from the screams of sixty children, and a lullaby to keep them singing.', 'The Board shut him down. Voss was never seen again. Neither were the children.', 'Tonight, every radio in town began to play that lullaby.', 'You came to find out why. You should not have come alone.'];
-const EPI = ['The Warden falls. The Heart stops beating.', 'The lullaby fades into silence. For the first time since 1974, the children sleep.', 'You walk out into the dawn. Behind you, one window flickers once... and goes dark.'];
-let prologueDone = false;
 const EPILOGUE = 'The Heart goes dark. The lullaby fades into silence. For the first time since 1974, St. Mercy is quiet and the children rest. You walk out into the dawn. Behind you, one window flickers once... and goes dark.';
 
-function cine(slides, done) {
-  const o = $('cine'), tx = $('cineText'); o.classList.remove('d-none'); let i = 0, tm;
-  const fin = () => { clearTimeout(tm); o.classList.add('d-none'); done && done(); };
-  $('cineSkip').onclick = fin;
-  const next = () => { if (i >= slides.length) return fin(); const t = slides[i++]; tx.style.opacity = 0;
-    setTimeout(() => { tx.textContent = t; tx.style.opacity = 1; if (i % 2) sfx.box(); }, 900); tm = setTimeout(next, 900 + 3200 + t.length * 45); };
-  next();
-}
 /* ---------- AUTH ---------- */
 const aerr = m => $('authErr').textContent = m.replace('auth/', '').replace(/-/g, ' ');
 $('btnLogin').onclick = () => signInWithEmailAndPassword(auth, $('email').value, $('pass').value).catch(e => aerr(e.code));
@@ -87,7 +76,7 @@ function onRoom(v) {
   $('lobPlayers').innerHTML = ids.map(u => `<li class="list-group-item bg-dark text-light">${v.players[u].name.replace(/</g, '&lt;')}${u === v.host ? ' 👑' : ''}</li>`).join('');
   $('btnStart').classList.toggle('d-none', !isHost); const sel = $('startLvl'), nU = Math.min(best + 1, 7); sel.classList.toggle('d-none', !isHost);
   if (isHost && sel.options.length !== nU) sel.innerHTML = Array.from({length: nU}, (_, i) => `<option value="${i + 1}">Chapter ${i + 1}: ${CH[i].n}</option>`).join(''); $('lobWait').classList.toggle('d-none', isHost);
-  if (v.state === 'lobby') { if (G) stopGame(); loadedSeed = null; prologueDone = false; $('endOverlay').classList.add('d-none'); show('lobby'); return; }
+  if (v.state === 'lobby') { if (G) stopGame(); loadedSeed = null; $('endOverlay').classList.add('d-none'); show('lobby'); return; }
   if (v.state === 'playing' && loadedSeed !== v.seed) startLevel(v.level, v.seed);
   if (v.state === 'won' || v.state === 'lost') return endGame(v.state);
   if (!G) return;
@@ -100,9 +89,7 @@ function onRoom(v) {
   const kk = v.keys || {};
   G.keys.forEach((k, i) => { if (kk['k' + i] && !k.taken) { k.taken = true; k.m.visible = false; sfx.pick(); } });
   const got = G.keys.filter(k => k.taken).length; hudKeys(got);
-  const boss = G.enemies.find(e => e.t === 'B'), sealed = boss && boss.hp > 0;
-  if (got === G.keys.length && sealed && !G.sealMsg) { G.sealMsg = 1; msg('The exit is sealed while the Heart still beats. Destroy the Warden!', 4500); }
-  if (got === G.keys.length && !sealed && !G.open) { G.open = true; G.exitLight.color.set(0x22ff55); G.exitMesh.material.color.set(0x114422); msg('THE EXIT IS OPEN. RUN.', 3500); sfx.thump(); }
+  if (got === G.keys.length && !G.open) { G.open = true; G.exitLight.color.set(0x22ff55); G.exitMesh.material.color.set(0x114422); msg('THE EXIT IS OPEN. RUN.', 3500); sfx.thump(); }
   Object.entries(v.enemies || {}).forEach(([i, d]) => { const e = G.enemies[i]; if (!e || !d) return; e.tx = d.x; e.tz = d.z; if (!isHost) { if (d.hp < e.hp) sfx.hit(); e.hp = d.hp; } });
   Object.entries(v.acts || {}).forEach(([u, a]) => { if (G.seen[u] === a.n) return; G.seen[u] = a.n; if (a.k === 'f') spawnFlare(a.x, a.z); if (isHost) applyAct(a); });
   if (isHost) {
@@ -117,7 +104,6 @@ function endGame(s) {
   $('endTitle').textContent = s === 'won' ? 'YOU ESCAPED' : 'YOU DIED';
   $('endText').textContent = s === 'won' ? EPILOGUE : 'It got all of you.';
   $('btnBack').classList.toggle('d-none', !isHost); $('endOverlay').classList.remove('d-none'); show('lobby');
-  if (s === 'won') cine(EPI);
 }
 
 /* ---------- AUDIO ---------- */
@@ -145,8 +131,7 @@ const sfx = {
   pick() { tone(800, 1700, .25, .25, 'triangle'); },
   swing() { noise(.18, 900, 1, .4, 300); },
   hit() { tone(160, 60, .2, .8, 'square'); noise(.15, 300, 1, .6); },
-  flare() { noise(.6, 3000, 1, .4, 800); },
-  box() { [523, 659, 784, 659, 587, 698].forEach((f, i) => setTimeout(() => tone(f, f * .99, .9, .1, 'triangle'), i * 420)); }
+  flare() { noise(.6, 3000, 1, .4, 800); }
 };
 
 /* ---------- WORLD HELPERS ---------- */
@@ -260,8 +245,7 @@ function startLevel(level, seed) {
   G = {scene, cam, fl, map: m, level, keys, items, enemies, axe, fpool, fi: 0, exitMesh, exitLight, ex, ez, remote: {}, seen: {}, open: false, adv: false, yaw: Math.PI, pitch: 0, bob: 0, stepT: 0, t: 0, sendT: 0, beatT: 0, hudT: 0,
     grace: 22, hp: 3, inv: 0, dead: false, cool: 0, shake: 0, flOn: true, flOff: 0, bat: 100, flares: 0, weapon: false, notes: 0, atk: 0, swing: 0, near: null, actN: 0,
     ev: 25 + r() * 10, clock: new T.Clock(), raf: 0, sent: false};
-  show('game'); $('endOverlay').classList.add('d-none'); $('ghost').src = faceImg(); resize(); hud(); save(level);
-  if (level === 1 && !prologueDone) { G.paused = true; cine(PROLOGUE, () => { prologueDone = true; if (G) { G.paused = false; story(c, level); } }); } else story(c, level);
+  show('game'); $('endOverlay').classList.add('d-none'); $('ghost').src = faceImg(); resize(); hud(); story(c, level); save(level);
   update(R('players/' + user.uid), {hp: 3, x: cam.position.x, z: cam.position.z});
   loop();
 }
@@ -272,7 +256,7 @@ addEventListener('resize', resize);
 /* ---------- HUD / STORY / SCARES ---------- */
 let msgT; const msg = (t, ms = 2500) => { const e = $('hudMsg'); e.textContent = t; e.classList.add('on'); clearTimeout(msgT); msgT = setTimeout(() => e.classList.remove('on'), ms); };
 function hud() { if (!G) return; const got = G.keys.filter(k => k.taken).length, h = Math.max(G.hp, 0);
-  $('hudKeys').textContent = `🎵 ${got}/${G.keys.length}  📜 ${G.notes}/2`;
+  $('hudKeys').textContent = `🗝 ${got}/${G.keys.length}  📜 ${G.notes}/2`;
   $('hudHp').textContent = '❤'.repeat(h) + '🖤'.repeat(3 - h) + `  🔋${Math.round(G.bat)}%  🕯${G.flares}` + (G.weapon ? '  🪓' : ''); }
 const hudKeys = () => hud(), hudHp = hud;
 function story(c, level) { const s = $('story'); s.innerHTML = `<small>CHAPTER ${level} OF 7</small><h2>${c.n}</h2><p>${c.intro}</p><small>${document.body.classList.contains('touch') ? 'Stick: move · drag right: look · ⚔ attack · 🕯 flare · ✋ interact' : 'Click to look · WASD move · E interact · F light · R flare · Click/Space attack'}</small>`;
@@ -338,7 +322,7 @@ function tick(dt) {
     if (len > .05) { const n = Math.min(len, 1) / len, sy = Math.sin(g.yaw), cy = Math.cos(g.yaw);
       tryMove((-sy * fy + cy * fx) * n * sp, (-cy * fy - sy * fx) * n * sp); g.bob += dt * (run ? 11 : 7); g.stepT -= dt; if (g.stepT <= 0) { g.stepT = run ? .3 : .48; sfx.step(); } }
     p.y = 1.6 + (len > .05 ? Math.sin(g.bob) * .035 : 0);
-    g.keys.forEach((k, i) => { if (!k.taken && Math.hypot(p.x - k.x, p.z - k.z) < 1.4) { k.taken = true; k.m.visible = false; sfx.pick(); msg('Music box wound. The lullaby weakens.', 2200); update(R('keys'), {['k' + i]: true}); } });
+    g.keys.forEach((k, i) => { if (!k.taken && Math.hypot(p.x - k.x, p.z - k.z) < 1.4) { k.taken = true; k.m.visible = false; sfx.pick(); update(R('keys'), {['k' + i]: true}); } });
     if (Math.hypot(p.x - g.ex, p.z - g.ez) < 1.8) { if (g.open && !g.sent) { g.sent = true; update(R('reached'), {[user.uid]: true}); msg('You made it out…', 3000); } else if (!g.open) msg('Locked. Find all the keys.', 1500); }
     let nr = null, nd = 1.7;
     g.items.forEach(it => { if (it.taken) return; const d = Math.hypot(p.x - it.x, p.z - it.z); it.m.rotation.y += dt; it.m.position.y = it.y + Math.sin(g.t * 2 + it.x) * .05;
@@ -371,7 +355,7 @@ function tick(dt) {
     update(R('players/' + user.uid), {x: +p.x.toFixed(2), z: +p.z.toFixed(2), ry: +g.yaw.toFixed(2)}).catch(() => {});
     if (isHost) { const o = {}; g.enemies.forEach((e, i) => { o[i + '/x'] = +e.m.position.x.toFixed(2); o[i + '/z'] = +e.m.position.z.toFixed(2); o[i + '/hp'] = e.hp; }); update(R('enemies'), o).catch(() => {}); } }
 }
-function loop() { if (!G) return; G.raf = requestAnimationFrame(loop); const dt = Math.min(G.clock.getDelta(), .05); if (!G.paused) tick(dt); renderer.render(G.scene, G.cam); }
+function loop() { if (!G) return; G.raf = requestAnimationFrame(loop); tick(Math.min(G.clock.getDelta(), .05)); renderer.render(G.scene, G.cam); }
 
 /* ---------- INPUT ---------- */
 const cv = $('cv'), locked = () => document.pointerLockElement === cv;

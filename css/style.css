@@ -31,8 +31,3 @@ body.touch .ctl{display:block;position:absolute;right:24px;width:60px;height:60p
 body.touch #btnAtk{bottom:calc(24px + env(safe-area-inset-bottom));right:96px}
 body.touch #btnUse{bottom:calc(100px + env(safe-area-inset-bottom));right:96px}
 body.touch #btnFlare{bottom:calc(176px + env(safe-area-inset-bottom));right:24px}
-
-#cine{position:fixed;inset:0;z-index:60;display:flex;align-items:center;justify-content:center;text-align:center;padding:2rem;background:radial-gradient(ellipse at center,#220000 0,#000 70%);animation:cz 30s linear forwards}
-#cineText{max-width:640px;font-family:Georgia,serif;font-size:clamp(1.2rem,4vw,2rem);color:#d8c8b8;text-shadow:0 0 18px #800;letter-spacing:.04em;transition:opacity 1s;opacity:0}
-#cineSkip{position:absolute;right:1rem;bottom:calc(1rem + env(safe-area-inset-bottom))}
-@keyframes cz{from{background-size:100% 100%}to{background-size:140% 140%}}
