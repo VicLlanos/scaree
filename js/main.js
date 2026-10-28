@@ -453,128 +453,215 @@ function mkPlayer(p, i) {
 }
 
 /* ---------- PROPER ZOMBIE MODELS ---------- */
+
 function mkZombie(type) {
   // type: 'walker' | 'runner' | 'brute'
   const g = new T.Group();
   const isRunner = type === "runner";
   const isBrute = type === "brute";
 
-  const skinCol = isBrute ? 0x3a2a1a : (isRunner ? 0x4a3a2a : 0x5a4a3a);
-  const clothCol = isBrute ? 0x1a1510 : 0x2a2520;
+  const skinCol = isBrute ? 0x2e2218 : (isRunner ? 0x3a2e22 : 0x4a3a2a);
+  const clothCol = isBrute ? 0x1a120c : 0x252018;
+  const bloodCol = 0x4a0808;
   const skin = new T.MeshStandardMaterial({ color: skinCol, roughness: 0.95 });
-  const cloth = new T.MeshStandardMaterial({ color: clothCol, roughness: 0.9 });
-  const dark = new T.MeshStandardMaterial({ color: 0x1a1008, roughness: 1 });
+  const cloth = new T.MeshStandardMaterial({ color: clothCol, roughness: 0.92 });
+  const dark = new T.MeshStandardMaterial({ color: 0x120c08, roughness: 1 });
+  const blood = new T.MeshStandardMaterial({ color: bloodCol, roughness: 0.8 });
 
-  // Torso – slightly hunched
-  const torso = new T.Mesh(new T.CylinderGeometry(isBrute ? 0.38 : 0.28, isBrute ? 0.42 : 0.32, isBrute ? 1.1 : 0.95, 8), cloth);
-  torso.position.y = isBrute ? 1.15 : 1.05;
-  torso.rotation.x = 0.15;
+  const s = isBrute ? 1.4 : (isRunner ? 0.92 : 1.08);
 
-  // Head – decayed, tilted
-  const head = new T.Mesh(new T.SphereGeometry(isBrute ? 0.26 : 0.2, 9, 7), skin);
-  head.position.y = isBrute ? 1.9 : 1.7;
-  head.rotation.z = (Math.random() - 0.5) * 0.3;
-  head.rotation.x = 0.1;
+  // === TORSO (hunched, asymmetrical) ===
+  const torso = new T.Mesh(
+    new T.CylinderGeometry(0.26 * s, 0.3 * s, 0.95 * s, 8),
+    cloth
+  );
+  torso.position.y = 1.0 * s;
+  torso.rotation.x = 0.22;
+  torso.rotation.z = (Math.random() - 0.5) * 0.12;
 
-  // Sunken eyes (dark sockets)
-  const socketM = new T.MeshBasicMaterial({ color: 0x0a0500 });
+  // Ribcage / exposed flesh patch
+  const flesh = new T.Mesh(
+    new T.BoxGeometry(0.22 * s, 0.28 * s, 0.08 * s),
+    skin
+  );
+  flesh.position.set(0.08 * s, 1.15 * s, 0.22 * s);
+  g.add(flesh);
+
+  // Blood stain on chest
+  const stain = new T.Mesh(
+    new T.BoxGeometry(0.18 * s, 0.2 * s, 0.04 * s),
+    blood
+  );
+  stain.position.set(-0.06 * s, 1.05 * s, 0.24 * s);
+  g.add(stain);
+
+  // === HEAD – decayed, tilted, jaw open ===
+  const head = new T.Mesh(
+    new T.SphereGeometry(0.19 * s, 9, 7),
+    skin
+  );
+  head.scale.set(0.9, 1.15, 0.95);
+  head.position.y = 1.68 * s;
+  head.rotation.z = (Math.random() - 0.5) * 0.35;
+  head.rotation.x = 0.15;
+
+  // Deep eye sockets
+  const socketM = new T.MeshBasicMaterial({ color: 0x050300 });
   [-0.07, 0.07].forEach(x => {
-    const sock = new T.Mesh(new T.SphereGeometry(0.045, 5, 5), socketM);
-    sock.position.set(x * (isBrute ? 1.2 : 1), head.position.y + 0.02, 0.14 * (isBrute ? 1.15 : 1));
+    const sock = new T.Mesh(new T.SphereGeometry(0.05 * s, 6, 5), socketM);
+    sock.position.set(x * s, 1.7 * s, 0.13 * s);
     g.add(sock);
   });
-  // Faint red/yellow pupil glow
-  const eyeM = new T.MeshBasicMaterial({ color: isRunner ? 0xff2200 : 0xaa8800 });
+  // Glowing pupils
+  const eyeM = new T.MeshBasicMaterial({ color: isRunner ? 0xff1a00 : 0xcc8800 });
   [-0.07, 0.07].forEach(x => {
-    const eye = new T.Mesh(new T.SphereGeometry(0.02, 4, 4), eyeM);
-    eye.position.set(x * (isBrute ? 1.2 : 1), head.position.y + 0.02, 0.17 * (isBrute ? 1.15 : 1));
+    const eye = new T.Mesh(new T.SphereGeometry(0.022 * s, 5, 4), eyeM);
+    eye.position.set(x * s, 1.7 * s, 0.16 * s);
     g.add(eye);
   });
 
-  // Open mouth / jaw
-  const jaw = new T.Mesh(new T.BoxGeometry(0.12, 0.06, 0.08), dark);
-  jaw.position.set(0, head.position.y - 0.1, 0.12);
+  // Open jaw (hanging)
+  const jaw = new T.Mesh(
+    new T.BoxGeometry(0.13 * s, 0.07 * s, 0.1 * s),
+    dark
+  );
+  jaw.position.set(0, 1.55 * s, 0.12 * s);
+  jaw.rotation.x = 0.4;
   g.add(jaw);
 
-  // Arms – one often raised or dangling
-  [-1, 1].forEach((s, idx) => {
-    const upper = new T.Mesh(new T.CylinderGeometry(0.06, 0.05, 0.55, 5), skin);
-    upper.position.set(s * 0.38, 1.25, 0.05);
-    upper.rotation.z = s * (isRunner ? 0.4 : 0.6);
-    upper.rotation.x = idx === 0 ? -0.8 : -0.3;
-    g.add(upper);
-    const lower = new T.Mesh(new T.CylinderGeometry(0.05, 0.04, 0.5, 5), skin);
-    lower.position.set(s * 0.55, 0.9, 0.25);
-    lower.rotation.z = s * 0.3;
-    lower.rotation.x = -0.5;
-    g.add(lower);
-    // Hand
-    const hand = new T.Mesh(new T.SphereGeometry(0.055, 5, 5), skin);
-    hand.position.set(s * 0.62, 0.65, 0.4);
-    g.add(hand);
-  });
+  // Teeth row
+  for (let i = 0; i < 4; i++) {
+    const tooth = new T.Mesh(
+      new T.BoxGeometry(0.02 * s, 0.035 * s, 0.02 * s),
+      new T.MeshStandardMaterial({ color: 0xddd8c0, roughness: 0.5 })
+    );
+    tooth.position.set((-0.045 + i * 0.03) * s, 1.57 * s, 0.16 * s);
+    g.add(tooth);
+  }
 
-  // Legs – shambling stance
-  [-1, 1].forEach((s, idx) => {
-    const thigh = new T.Mesh(new T.CylinderGeometry(0.09, 0.07, 0.55, 5), cloth);
-    thigh.position.set(s * 0.14, 0.55, idx === 0 ? 0.08 : -0.05);
-    thigh.rotation.x = idx === 0 ? 0.2 : -0.15;
-    g.add(thigh);
-    const shin = new T.Mesh(new T.CylinderGeometry(0.07, 0.055, 0.5, 5), cloth);
-    shin.position.set(s * 0.14, 0.15, idx === 0 ? 0.12 : -0.02);
-    g.add(shin);
-    const foot = new T.Mesh(new T.BoxGeometry(0.1, 0.06, 0.22), dark);
-    foot.position.set(s * 0.14, -0.08, 0.08);
-    g.add(foot);
-  });
+  // === ARMS – one raised clawing, one dangling ===
+  // Left arm (raised)
+  const upperL = new T.Mesh(new T.CylinderGeometry(0.055 * s, 0.045 * s, 0.5 * s, 5), skin);
+  upperL.position.set(-0.36 * s, 1.25 * s, 0.1 * s);
+  upperL.rotation.z = -0.9;
+  upperL.rotation.x = -1.1;
+  g.add(upperL);
+  const lowerL = new T.Mesh(new T.CylinderGeometry(0.045 * s, 0.035 * s, 0.45 * s, 5), skin);
+  lowerL.position.set(-0.55 * s, 1.0 * s, 0.35 * s);
+  lowerL.rotation.z = -0.5;
+  lowerL.rotation.x = -0.7;
+  g.add(lowerL);
+  // Clawed hand
+  const handL = new T.Mesh(new T.SphereGeometry(0.05 * s, 5, 5), skin);
+  handL.position.set(-0.62 * s, 0.82 * s, 0.5 * s);
+  g.add(handL);
+  for (let f = 0; f < 3; f++) {
+    const finger = new T.Mesh(new T.CylinderGeometry(0.012 * s, 0.008 * s, 0.12 * s, 4), skin);
+    finger.position.set((-0.62 + (f - 1) * 0.03) * s, 0.72 * s, 0.55 * s);
+    finger.rotation.x = -0.8;
+    g.add(finger);
+  }
 
-  // Torn clothing detail on torso
-  const rag = new T.Mesh(new T.BoxGeometry(0.5, 0.15, 0.15), dark);
-  rag.position.set(0.1, 1.3, 0.2);
-  rag.rotation.z = 0.3;
-  g.add(rag);
+  // Right arm (dangling / broken looking)
+  const upperR = new T.Mesh(new T.CylinderGeometry(0.055 * s, 0.045 * s, 0.5 * s, 5), skin);
+  upperR.position.set(0.36 * s, 1.2 * s, 0.05 * s);
+  upperR.rotation.z = 0.5;
+  upperR.rotation.x = 0.3;
+  g.add(upperR);
+  const lowerR = new T.Mesh(new T.CylinderGeometry(0.04 * s, 0.03 * s, 0.48 * s, 5), skin);
+  lowerR.position.set(0.5 * s, 0.85 * s, 0.1 * s);
+  lowerR.rotation.z = 0.2;
+  lowerR.rotation.x = 0.6;
+  g.add(lowerR);
+  const handR = new T.Mesh(new T.SphereGeometry(0.045 * s, 5, 5), skin);
+  handR.position.set(0.55 * s, 0.6 * s, 0.2 * s);
+  g.add(handR);
+
+  // === LEGS – limping stance ===
+  // Left leg forward
+  const thighL = new T.Mesh(new T.CylinderGeometry(0.085 * s, 0.07 * s, 0.5 * s, 5), cloth);
+  thighL.position.set(-0.13 * s, 0.52 * s, 0.1 * s);
+  thighL.rotation.x = 0.25;
+  g.add(thighL);
+  const shinL = new T.Mesh(new T.CylinderGeometry(0.065 * s, 0.05 * s, 0.48 * s, 5), cloth);
+  shinL.position.set(-0.13 * s, 0.12 * s, 0.18 * s);
+  g.add(shinL);
+  const footL = new T.Mesh(new T.BoxGeometry(0.1 * s, 0.06 * s, 0.22 * s), dark);
+  footL.position.set(-0.13 * s, -0.1 * s, 0.22 * s);
+  g.add(footL);
+
+  // Right leg back / dragging
+  const thighR = new T.Mesh(new T.CylinderGeometry(0.085 * s, 0.07 * s, 0.5 * s, 5), cloth);
+  thighR.position.set(0.13 * s, 0.52 * s, -0.08 * s);
+  thighR.rotation.x = -0.2;
+  g.add(thighR);
+  const shinR = new T.Mesh(new T.CylinderGeometry(0.065 * s, 0.05 * s, 0.48 * s, 5), cloth);
+  shinR.position.set(0.13 * s, 0.12 * s, -0.05 * s);
+  shinR.rotation.x = 0.15;
+  g.add(shinR);
+  const footR = new T.Mesh(new T.BoxGeometry(0.1 * s, 0.06 * s, 0.2 * s), dark);
+  footR.position.set(0.13 * s, -0.1 * s, 0.02 * s);
+  g.add(footR);
+
+  // Torn rag / clothing strips
+  const rag1 = new T.Mesh(new T.BoxGeometry(0.08 * s, 0.35 * s, 0.04 * s), dark);
+  rag1.position.set(0.22 * s, 0.9 * s, 0.2 * s);
+  rag1.rotation.z = 0.4;
+  g.add(rag1);
+  const rag2 = new T.Mesh(new T.BoxGeometry(0.06 * s, 0.25 * s, 0.03 * s), blood);
+  rag2.position.set(-0.2 * s, 1.1 * s, 0.22 * s);
+  rag2.rotation.z = -0.3;
+  g.add(rag2);
 
   g.add(torso, head);
 
-  // Scale
-  if (isBrute) g.scale.setScalar(1.35);
-  else if (isRunner) g.scale.setScalar(0.95);
-  else g.scale.setScalar(1.05);
-
-  // Weak point light (optional, subtle)
+  // Runner gets subtle red light
   if (isRunner) {
-    const l = new T.PointLight(0xff2200, 0.25, 3);
-    l.position.y = 1.6;
+    const l = new T.PointLight(0xff2200, 0.3, 3.5);
+    l.position.set(0, 1.6 * s, 0.2 * s);
     g.add(l);
   }
+  // Brute gets heavier presence
+  if (isBrute) {
+    const l = new T.PointLight(0x331100, 0.4, 4);
+    l.position.set(0, 1.5 * s, 0);
+    g.add(l);
+  }
+
   return g;
 }
 
 /* ---------- WEAPONS & ITEMS ---------- */
 function mkGun(type) {
   const g = new T.Group();
-  const metal = new T.MeshStandardMaterial({ color: 0x333338, roughness: 0.35, metalness: 0.8 });
-  const dark = new T.MeshStandardMaterial({ color: 0x1a1a1a, roughness: 0.7 });
+  const metal = new T.MeshStandardMaterial({ color: 0x2a2a30, roughness: 0.3, metalness: 0.85 });
+  const dark = new T.MeshStandardMaterial({ color: 0x141414, roughness: 0.65 });
   const wood = new T.MeshStandardMaterial({ color: 0x3a2a18, roughness: 0.85 });
 
   if (type === "shotgun") {
-    const barrel = new T.Mesh(new T.CylinderGeometry(0.035, 0.04, 0.7, 8), metal);
-    barrel.rotation.z = Math.PI / 2; barrel.position.set(0.25, 0.05, 0);
-    const pump = new T.Mesh(new T.BoxGeometry(0.25, 0.08, 0.07), dark);
-    pump.position.set(0.05, 0.02, 0);
-    const stock = new T.Mesh(new T.BoxGeometry(0.35, 0.1, 0.06), wood);
-    stock.position.set(-0.25, 0, 0);
-    const grip = new T.Mesh(new T.BoxGeometry(0.08, 0.18, 0.05), dark);
-    grip.position.set(-0.05, -0.1, 0);
-    g.add(barrel, pump, stock, grip);
+    // Barrel points toward -Z
+    const barrel = new T.Mesh(new T.CylinderGeometry(0.032, 0.038, 0.75, 8), metal);
+    barrel.rotation.x = Math.PI / 2;
+    barrel.position.set(0, 0.04, -0.28);
+    const barrel2 = new T.Mesh(new T.CylinderGeometry(0.028, 0.032, 0.7, 8), metal);
+    barrel2.rotation.x = Math.PI / 2;
+    barrel2.position.set(0, -0.02, -0.26);
+    const pump = new T.Mesh(new T.BoxGeometry(0.07, 0.08, 0.28), dark);
+    pump.position.set(0, 0.01, 0.05);
+    const stock = new T.Mesh(new T.BoxGeometry(0.06, 0.1, 0.38), wood);
+    stock.position.set(0, 0.0, 0.32);
+    const grip = new T.Mesh(new T.BoxGeometry(0.05, 0.16, 0.08), dark);
+    grip.position.set(0, -0.1, 0.12);
+    g.add(barrel, barrel2, pump, stock, grip);
   } else {
-    // Pistol
-    const slide = new T.Mesh(new T.BoxGeometry(0.28, 0.08, 0.05), metal);
-    slide.position.set(0.08, 0.04, 0);
-    const grip = new T.Mesh(new T.BoxGeometry(0.08, 0.18, 0.05), dark);
-    grip.position.set(-0.02, -0.08, 0);
-    const barrel = new T.Mesh(new T.CylinderGeometry(0.02, 0.02, 0.12, 6), metal);
-    barrel.rotation.z = Math.PI / 2; barrel.position.set(0.22, 0.04, 0);
+    // Pistol – barrel toward -Z
+    const slide = new T.Mesh(new T.BoxGeometry(0.05, 0.08, 0.28), metal);
+    slide.position.set(0, 0.04, -0.06);
+    const grip = new T.Mesh(new T.BoxGeometry(0.045, 0.17, 0.08), dark);
+    grip.position.set(0, -0.08, 0.06);
+    const barrel = new T.Mesh(new T.CylinderGeometry(0.018, 0.018, 0.14, 6), metal);
+    barrel.rotation.x = Math.PI / 2;
+    barrel.position.set(0, 0.04, -0.22);
     g.add(slide, grip, barrel);
   }
   return g;
@@ -632,13 +719,13 @@ function startLevel(level, seed) {
 
   const scene = new T.Scene();
   scene.background = new T.Color(mapData.fog);
-  scene.fog = new T.FogExp2(mapData.fog, 0.022 + level * 0.002);
+  scene.fog = new T.FogExp2(mapData.fog, 0.028 + level * 0.0025);
 
   const cam = new T.PerspectiveCamera(70, 1, 0.1, 120);
   cam.rotation.order = "YXZ";
   scene.add(cam);
 
-  scene.add(new T.AmbientLight(0x303028, 0.45));
+  scene.add(new T.AmbientLight(0x282420, 0.38));
   // Moon / distant light
   const moon = new T.DirectionalLight(0x8899aa, 0.35);
   moon.position.set(30, 50, 20);
@@ -689,10 +776,87 @@ function startLevel(level, seed) {
     scene.add(roof);
   }));
 
+  
   // Street lights (some broken)
   const openCells = [];
   for (let y = 0; y < W; y++) for (let x = 0; x < W; x++) if (m[y][x] === 0) openCells.push([x, y]);
   openCells.sort(() => r() - 0.5);
+
+  // === OVERRUN DETAILS: cars, debris, blood, barricades ===
+  const carMat = new T.MeshStandardMaterial({ color: 0x2a3038, roughness: 0.7, metalness: 0.4 });
+  const carDark = new T.MeshStandardMaterial({ color: 0x151518, roughness: 0.9 });
+  const rust = new T.MeshStandardMaterial({ color: 0x4a3020, roughness: 0.85 });
+  const bloodMat = new T.MeshStandardMaterial({ color: 0x3a0808, roughness: 0.95, transparent: true, opacity: 0.85 });
+
+  for (let i = 0; i < Math.min(12, openCells.length); i++) {
+    const [cx, cy] = openCells[5 + i * 2] || openCells[i];
+    const px = (cx + 0.5) * CELL + (r() - 0.5) * 3;
+    const pz = (cy + 0.5) * CELL + (r() - 0.5) * 3;
+    // Abandoned car
+    const body = new T.Mesh(new T.BoxGeometry(2.2, 0.7, 1.1), i % 3 === 0 ? rust : carMat);
+    body.position.set(px, 0.45, pz);
+    body.rotation.y = r() * Math.PI * 2;
+    scene.add(body);
+    const cabin = new T.Mesh(new T.BoxGeometry(1.2, 0.55, 1.0), carDark);
+    cabin.position.set(px + Math.sin(body.rotation.y) * 0.2, 0.95, pz + Math.cos(body.rotation.y) * 0.2);
+    cabin.rotation.y = body.rotation.y;
+    scene.add(cabin);
+    // Wheels
+    for (const [wx, wz] of [[-0.7, -0.5], [-0.7, 0.5], [0.7, -0.5], [0.7, 0.5]]) {
+      const wheel = new T.Mesh(new T.CylinderGeometry(0.22, 0.22, 0.15, 8), carDark);
+      wheel.rotation.z = Math.PI / 2;
+      const cos = Math.cos(body.rotation.y), sin = Math.sin(body.rotation.y);
+      wheel.position.set(px + wx * cos - wz * sin, 0.22, pz + wx * sin + wz * cos);
+      scene.add(wheel);
+    }
+  }
+
+  // Debris piles and barricades
+  for (let i = 0; i < 20; i++) {
+    const [cx, cy] = openCells[15 + i] || openCells[i % openCells.length];
+    const px = (cx + 0.5) * CELL + (r() - 0.5) * 4;
+    const pz = (cy + 0.5) * CELL + (r() - 0.5) * 4;
+    if (r() < 0.4) {
+      // Concrete barrier
+      const bar = new T.Mesh(new T.BoxGeometry(1.6, 0.7, 0.4), new T.MeshStandardMaterial({ color: 0x555550, roughness: 0.95 }));
+      bar.position.set(px, 0.35, pz);
+      bar.rotation.y = r() * Math.PI;
+      scene.add(bar);
+    } else {
+      // Trash / debris pile
+      const pile = new T.Mesh(new T.BoxGeometry(0.8 + r() * 0.6, 0.3 + r() * 0.3, 0.6 + r() * 0.5), rust);
+      pile.position.set(px, 0.2, pz);
+      pile.rotation.y = r() * Math.PI;
+      scene.add(pile);
+    }
+  }
+
+  // Blood pools on ground
+  for (let i = 0; i < 15; i++) {
+    const [cx, cy] = openCells[8 + i * 2] || openCells[i];
+    const px = (cx + 0.5) * CELL + (r() - 0.5) * 3;
+    const pz = (cy + 0.5) * CELL + (r() - 0.5) * 3;
+    const pool = new T.Mesh(
+      new T.CircleGeometry(0.4 + r() * 0.7, 10),
+      bloodMat
+    );
+    pool.rotation.x = -Math.PI / 2;
+    pool.position.set(px, 0.02, pz);
+    scene.add(pool);
+  }
+
+  // Scattered body bags / covered shapes
+  for (let i = 0; i < 6; i++) {
+    const [cx, cy] = openCells[25 + i * 3] || openCells[i];
+    const px = (cx + 0.5) * CELL + (r() - 0.5) * 2;
+    const pz = (cy + 0.5) * CELL + (r() - 0.5) * 2;
+    const bag = new T.Mesh(new T.BoxGeometry(1.3, 0.35, 0.5), new T.MeshStandardMaterial({ color: 0x1a1a18, roughness: 0.9 }));
+    bag.rotation.y = r() * Math.PI;
+    bag.position.set(px, 0.18, pz);
+    scene.add(bag);
+  }
+
+
 
   for (let i = 0; i < Math.min(18, openCells.length); i++) {
     const [cx, cy] = openCells[i];
@@ -776,16 +940,17 @@ function startLevel(level, seed) {
   });
 
   // Held weapon (view model)
+  // Viewmodel – barrel points down the camera forward (-Z)
   const heldPistol = mkGun("pistol");
-  heldPistol.scale.setScalar(0.9);
-  heldPistol.position.set(0.28, -0.28, -0.55);
-  heldPistol.rotation.set(0.1, 0.3, 0.15);
+  heldPistol.scale.setScalar(1.05);
+  heldPistol.position.set(0.25, -0.24, -0.45);
+  heldPistol.rotation.set(0.05, 0.0, 0.08);
   heldPistol.visible = false;
   cam.add(heldPistol);
   const heldShotgun = mkGun("shotgun");
-  heldShotgun.scale.setScalar(0.85);
-  heldShotgun.position.set(0.25, -0.25, -0.6);
-  heldShotgun.rotation.set(0.05, 0.25, 0.1);
+  heldShotgun.scale.setScalar(1.0);
+  heldShotgun.position.set(0.22, -0.22, -0.5);
+  heldShotgun.rotation.set(0.03, 0.0, 0.05);
   heldShotgun.visible = false;
   cam.add(heldShotgun);
 

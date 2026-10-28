@@ -55,3 +55,69 @@ body.touch #btnReload{bottom:calc(176px + env(safe-area-inset-bottom));right:max
 #installBanner.show{display:block}
 #safeBadge{position:absolute;top:12%;left:50%;transform:translateX(-50%);background:rgba(20,60,20,.75);border:1px solid #2a8a2a;color:#8f8;padding:.3rem .9rem;border-radius:4px;font-size:.85rem;letter-spacing:.08em;opacity:0;transition:opacity .4s;z-index:6;pointer-events:none}
 #safeBadge.on{opacity:1}
+
+/* Crosshair */
+#crosshair {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 28px;
+  height: 28px;
+  pointer-events: none;
+  z-index: 7;
+  opacity: 0.85;
+}
+#crosshair .ch {
+  position: absolute;
+  background: rgba(255, 240, 200, 0.9);
+  box-shadow: 0 0 3px #000;
+}
+#crosshair .ch-h {
+  width: 12px;
+  height: 2px;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+}
+#crosshair .ch-h::before,
+#crosshair .ch-h::after {
+  content: "";
+  position: absolute;
+  width: 8px;
+  height: 2px;
+  background: rgba(255, 240, 200, 0.9);
+  box-shadow: 0 0 3px #000;
+  top: 0;
+}
+#crosshair .ch-h::before { right: 14px; }
+#crosshair .ch-h::after { left: 14px; }
+#crosshair .ch-v {
+  width: 2px;
+  height: 12px;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+}
+#crosshair .ch-v::before,
+#crosshair .ch-v::after {
+  content: "";
+  position: absolute;
+  width: 2px;
+  height: 8px;
+  background: rgba(255, 240, 200, 0.9);
+  box-shadow: 0 0 3px #000;
+  left: 0;
+}
+#crosshair .ch-v::before { bottom: 14px; }
+#crosshair .ch-v::after { top: 14px; }
+#crosshair .ch-dot {
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(255, 200, 80, 0.95);
+}
+#game:not(.d-none) #crosshair { display: block; }
