@@ -1,8 +1,7 @@
 export const firebaseConfig = {
   apiKey: "AIzaSyA6GVucElN-x491r3adp5GcyIYx3zGNm4E",
   authDomain: "scaree-57b06.firebaseapp.com",
-  // If your Realtime Database is NOT in us-central1, copy its exact URL from Firebase Console > Realtime Database and uncomment:
-  // databaseURL: "https://scaree-57b06-default-rtdb.firebaseio.com",
+  databaseURL: "https://scaree-57b06-default-rtdb.asia-southeast1.firebasedatabase.app",
   projectId: "scaree-57b06",
   storageBucket: "scaree-57b06.firebasestorage.app",
   messagingSenderId: "193989767945",

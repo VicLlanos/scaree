@@ -4,7 +4,7 @@ Stack: HTML + JavaScript (ES modules) + Bootstrap 5 + Three.js, Firebase Auth + 
 ## Firebase setup (console.firebase.google.com > project scaree-57b06)
 1. Build > Authentication > Sign-in method: enable **Email/Password** and **Google**.
 2. Authentication > Settings > Authorized domains: add `<your-username>.github.io`.
-3. Build > Realtime Database > Create database. If its URL is not `https://scaree-57b06-default-rtdb.firebaseio.com`, set `databaseURL` in `js/firebase-config.js`.
+3. Build > Realtime Database > Create database (Singapore). The URL is already set in `js/firebase-config.js`.
 4. Realtime Database > Rules: paste `database.rules.json` and **Publish**.
 
 ## Deploy on GitHub Pages

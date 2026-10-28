@@ -31,18 +31,20 @@ const save = (lvl, win) => { best = Math.max(best, lvl); $('best').textContent =
   update(ref(db, 'users/' + user.uid), {name: nm(), bestLevel: best}).catch(() => {}); };
 
 /* ---------- ROOMS ---------- */
+const tmo = (p, ms = 8000) => Promise.race([p, new Promise((_, j) => setTimeout(() => j({code: 'timeout'}), ms))]);
+const dbErr = (e, what) => { console.error(e); return e.code === 'timeout' ? 'Database not reachable. Set the correct databaseURL in js/firebase-config.js (Firebase Console > Realtime Database).' : `Could not ${what}: ${e.code || e.message}`; };
 const menuErr = m => $('menuErr').textContent = m;
 $('btnCreate').onclick = async () => { audio();
   code = Array.from({length: 5}, () => 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'[Math.random() * 32 | 0]).join('');
-  try { await set(R(), {host: user.uid, state: 'lobby', level: 1, seed: 1, createdAt: serverTimestamp(), slots: {s0: user.uid}, players: {[user.uid]: pl()}}); mySlot = 's0'; enter(); }
-  catch (e) { menuErr('Could not create room (check database rules).'); } };
+  menuErr('Creating room…'); try { await tmo(set(R(), {host: user.uid, state: 'lobby', level: 1, seed: 1, createdAt: serverTimestamp(), slots: {s0: user.uid}, players: {[user.uid]: pl()}})); mySlot = 's0'; enter(); }
+  catch (e) { menuErr(dbErr(e, 'create room')); } };
 $('btnJoin').onclick = async () => { audio(); code = $('joinCode').value.toUpperCase().trim();
-  try { const s = await get(R()); if (!s.exists()) return menuErr('Room not found');
+  menuErr('Joining…'); try { const s = await tmo(get(R())); if (!s.exists()) return menuErr('Room not found');
     const v = s.val(), n = Object.keys(v.players || {}).length;
     if (v.state !== 'lobby') return menuErr('Game already started');
-    mySlot = null; for (const sl of ['s0', 's1', 's2', 's3']) { try { await set(R('slots/' + sl), user.uid); mySlot = sl; break; } catch (e) {} }
+    mySlot = null; for (const sl of ['s0', 's1', 's2', 's3']) { try { await tmo(set(R('slots/' + sl), user.uid)); mySlot = sl; break; } catch (e) { if (e.code === 'timeout') throw e; } }
     if (!mySlot) return menuErr('Room is full (4/4)');
-    await set(R('players/' + user.uid), pl()); enter(); } catch (e) { menuErr('Could not join room.'); } };
+    await tmo(set(R('players/' + user.uid), pl())); enter(); } catch (e) { menuErr(dbErr(e, 'join room')); } };
 function enter() { menuErr(''); onDisconnect(R()).update({['players/' + user.uid]: null, ['slots/' + mySlot]: null}).catch(() => {}); $('lobCode').textContent = code; $('hudRoom').textContent = code;
   unsub = onValue(R(), s => onRoom(s.val())); show('lobby'); }
 async function leave(kicked) {
