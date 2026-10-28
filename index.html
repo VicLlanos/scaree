@@ -119,8 +119,15 @@
     const $ = id => document.getElementById(id);
     const err = m => { $('err').textContent = m || ''; };
     let pending = null;
+    let signedIn = false;
 
     if (matchMedia('(pointer:coarse)').matches) document.body.classList.add('touch');
+
+    // Sign in as soon as the title screen loads (required by your DB rules)
+    err('Signing in…');
+    Net.signIn()
+      .then(() => { signedIn = true; err(''); })
+      .catch(e => err(e.message || String(e)));
 
     $('btnHow').onclick = () => $('howPanel').classList.remove('hidden');
     $('btnHowClose').onclick = () => $('howPanel').classList.add('hidden');
@@ -130,6 +137,8 @@
     $('btnCreate').onclick = async () => {
       err('Creating…');
       try {
+        if (!signedIn) await Net.signIn();
+        signedIn = true;
         const name = $('nameInput').value.trim() || 'Traveler';
         pending = await Net.createRoom(name);
         $('shareCode').textContent = pending;
@@ -151,6 +160,8 @@
     $('btnJoinGo').onclick = async () => {
       err('Joining…');
       try {
+        if (!signedIn) await Net.signIn();
+        signedIn = true;
         const name = $('nameInput').value.trim() || 'Traveler';
         const code = $('codeInput').value.trim().toUpperCase();
         if (!/^[A-Z0-9]{6}$/.test(code)) throw new Error('Need 6-character code');

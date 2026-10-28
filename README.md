@@ -8,42 +8,102 @@ Two souls — **Ember** (orange) and **Echo** (teal) — wake in the Hollowlands
 
 ### Firebase (project: scaree-57b06)
 
-1. [Firebase Console](https://console.firebase.google.com) → project **scaree-57b06**
-2. **Authentication** → Sign-in method → enable **Anonymous**
-3. **Realtime Database** → ensure database exists
-4. `firebase-config.js` is already filled for this project
-5. **Realtime Database → Rules** → paste below → Publish:
+Your existing SCAREE rules for `/rooms` stay as they are. Ember & Echo uses a **separate** path: `/ee_rooms`.
+
+**1. Enable Anonymous Auth**
+- Authentication → Sign-in method → **Anonymous** → Enable → Save
+
+**2. Add these rules** (keep your current `/users` and `/rooms` blocks)
+
+In Realtime Database → Rules, merge so the file looks like:
 
 ```json
 {
   "rules": {
-    ".read": "auth != null",
-    ".write": "auth != null",
+    ".read": false,
+    ".write": false,
+
+    "users": {
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid",
+        ".write": "auth != null && auth.uid === $uid",
+        ".validate": "newData.hasChildren(['name'])",
+        "name": { ".validate": "newData.isString() && newData.val().length <= 20" },
+        "bestLevel": { ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 3" },
+        "wins": { ".validate": "newData.isNumber() && newData.val() >= 0" },
+        "$other": { ".validate": false }
+      }
+    },
+
     "rooms": {
       "$room": {
-        ".validate": "$room.matches(/^[A-Z0-9]{6}$/)",
+        ".read": "auth != null",
+        ".validate": "$room.matches(/^[A-Z0-9]{5}$/)",
+        ".write": "auth != null && ((!data.exists() && newData.child('host').val() === auth.uid) || (data.child('host').val() === auth.uid && !newData.exists()))",
+        "host": { ".validate": "newData.isString()" },
+        "createdAt": { ".validate": "newData.isNumber()" },
+        "state": {
+          ".write": "auth != null && data.parent().child('host').val() === auth.uid",
+          ".validate": "newData.isString() && newData.val().matches(/^(lobby|playing|won|lost)$/)"
+        },
+        "level": {
+          ".write": "auth != null && data.parent().child('host').val() === auth.uid",
+          ".validate": "newData.isNumber() && newData.val() >= 1 && newData.val() <= 3"
+        },
+        "seed": {
+          ".write": "auth != null && data.parent().child('host').val() === auth.uid",
+          ".validate": "newData.isNumber()"
+        },
+        "enemy": {
+          ".write": "auth != null && data.parent().child('host').val() === auth.uid",
+          "x": { ".validate": "newData.isNumber()" },
+          "z": { ".validate": "newData.isNumber()" },
+          "$other": { ".validate": false }
+        },
+        "slots": {
+          "$s": {
+            ".write": "auth != null && ((!data.exists() && newData.val() === auth.uid) || (data.val() === auth.uid && !newData.exists()))",
+            ".validate": "$s.matches(/^s[0-3]$/) && newData.isString()"
+          }
+        },
         "players": {
           "$uid": {
-            ".write": "auth.uid === $uid"
+            ".write": "auth != null && auth.uid === $uid && (data.parent().parent().child('slots').child('s0').val() === auth.uid || data.parent().parent().child('slots').child('s1').val() === auth.uid || data.parent().parent().child('slots').child('s2').val() === auth.uid || data.parent().parent().child('slots').child('s3').val() === auth.uid)",
+            ".validate": "newData.hasChildren(['name','hp'])",
+            "name": { ".validate": "newData.isString() && newData.val().length <= 20" },
+            "x": { ".validate": "newData.isNumber()" },
+            "z": { ".validate": "newData.isNumber()" },
+            "ry": { ".validate": "newData.isNumber()" },
+            "hp": { ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 3" },
+            "$other": { ".validate": false }
           }
-        }
+        },
+        "keys": {
+          ".write": "auth != null && (data.parent().child('players').child(auth.uid).exists() || data.parent().child('host').val() === auth.uid)",
+          "$k": { ".validate": "$k.matches(/^k[0-9]$/) && newData.val() === true" }
+        },
+        "reached": {
+          ".write": "auth != null && (data.parent().child('players').child(auth.uid).exists() || data.parent().child('host').val() === auth.uid)",
+          "$u": { ".validate": "newData.val() === true" }
+        },
+        "$other": { ".validate": false }
+      }
+    },
+
+    "ee_rooms": {
+      "$room": {
+        ".read": "auth != null",
+        ".write": "auth != null",
+        ".validate": "$room.matches(/^[A-Z0-9]{6}$/)"
       }
     }
   }
 }
 ```
 
-> Tighten rules for production (field validation, room TTL, etc.).
+**3. Publish** the rules, wait ~10 seconds, hard-refresh the game.
 
-### GitHub Pages
-
-Push all files to repo root → Settings → Pages → Deploy from `main` / root.
-
-### Local
-
-```bash
-npx serve .
-```
+The title screen signs you in (Anonymous) automatically. Then Create / Join Room works under `/ee_rooms` without touching SCAREE data.
 
 ## Progressive Web App (PWA)
 
