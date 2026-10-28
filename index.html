@@ -3,12 +3,12 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
-  <meta name="theme-color" content="#000000">
+  <meta name="theme-color" content="#0a0a0a">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="mobile-web-app-capable" content="yes">
-  <meta name="description" content="SCAREE – 4-player co-op horror PWA. Survive the asylum together.">
-  <title>SCAREE – Co-op Horror</title>
+  <meta name="description" content="DEAD STREETS – 4-player co-op zombie survival. Clear the town. Reach extraction.">
+  <title>DEAD STREETS – Co-op Survival</title>
   <link rel="manifest" href="manifest.json">
   <link rel="apple-touch-icon" href="icons/icon-192.png">
   <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
@@ -16,11 +16,10 @@
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-  <!-- AUTH -->
   <section id="auth" class="screen d-none">
     <div class="card panel p-4">
-      <h1 class="title text-center mb-1">SCAREE</h1>
-      <p class="text-center text-secondary small mb-3">Don't go in alone. Up to 4 survivors.</p>
+      <h1 class="title text-center mb-1">DEAD STREETS</h1>
+      <p class="text-center text-secondary small mb-3">The outbreak took the town. Clear the streets. Reach extraction. Up to 4 survivors.</p>
       <input id="nick" class="form-control mb-2" placeholder="Nickname (for sign up)" maxlength="16" autocomplete="username">
       <input id="email" type="email" class="form-control mb-2" placeholder="Email" autocomplete="email">
       <input id="pass" type="password" class="form-control mb-3" placeholder="Password (6+ chars)" autocomplete="current-password">
@@ -34,18 +33,17 @@
     </div>
   </section>
 
-  <!-- MENU -->
   <section id="menu" class="screen d-none">
     <div class="card panel p-4">
-      <h2 class="title text-center">The Asylum</h2>
+      <h2 class="title text-center">OUTBREAK</h2>
       <p class="text-center small text-secondary mb-3">
         Survivor: <b id="who"></b><br>
-        Deepest level reached: <b id="best">0</b>/7
+        Furthest sector reached: <b id="best">0</b>/5
       </p>
-      <button id="btnCreate" class="btn btn-danger w-100 mb-2">Create room</button>
-      <button id="btnSolo" class="btn btn-outline-danger w-100 mb-3">Play Solo</button>
+      <button id="btnCreate" class="btn btn-danger w-100 mb-2">Create squad</button>
+      <button id="btnSolo" class="btn btn-outline-danger w-100 mb-3">Solo run</button>
       <div class="input-group mb-2">
-        <input id="joinCode" class="form-control text-uppercase" placeholder="Room code" maxlength="5" autocomplete="off">
+        <input id="joinCode" class="form-control text-uppercase" placeholder="Squad code" maxlength="5" autocomplete="off">
         <button id="btnJoin" class="btn btn-outline-danger">Join</button>
       </div>
       <div id="menuErr" class="text-danger small text-center"></div>
@@ -53,20 +51,18 @@
     </div>
   </section>
 
-  <!-- LOBBY -->
   <section id="lobby" class="screen d-none">
     <div class="card panel p-4">
-      <h2 class="title text-center">Room <span id="lobCode"></span></h2>
-      <p class="text-center small text-secondary">Share this code. Max 4 players.</p>
+      <h2 class="title text-center">Squad <span id="lobCode"></span></h2>
+      <p class="text-center small text-secondary">Share this code. Max 4 survivors.</p>
       <ul id="lobPlayers" class="list-group mb-3"></ul>
       <select id="startLvl" class="form-select mb-2 d-none"></select>
-      <button id="btnStart" class="btn btn-danger w-100 d-none">Enter the Asylum</button>
-      <div id="lobWait" class="text-center text-secondary small">Waiting for host to start…</div>
+      <button id="btnStart" class="btn btn-danger w-100 d-none">Deploy into town</button>
+      <div id="lobWait" class="text-center text-secondary small">Waiting for squad lead…</div>
       <button id="btnLeave" class="btn btn-sm btn-link text-secondary mt-2">Leave</button>
     </div>
   </section>
 
-  <!-- GAME -->
   <section id="game" class="d-none">
     <canvas id="cv"></canvas>
     <div id="hud">
@@ -78,13 +74,14 @@
       <div id="hudMsg"></div>
       <div id="prompt"></div>
       <div id="story"></div>
+      <div id="safeBadge">SAFE ZONE</div>
     </div>
     <div id="joy"><div id="knob"></div></div>
     <button id="btnLight" class="ctl" title="Flashlight">🔦</button>
     <button id="btnRun" class="ctl" title="Sprint">🏃</button>
-    <button id="btnAtk" class="ctl" title="Attack">⚔</button>
+    <button id="btnAtk" class="ctl" title="Fire">🔫</button>
     <button id="btnUse" class="ctl" title="Interact">✋</button>
-    <button id="btnFlare" class="ctl" title="Flare">🕯</button>
+    <button id="btnReload" class="ctl" title="Reload">🔄</button>
   </section>
 
   <div id="note" class="d-none"></div>
@@ -96,18 +93,19 @@
     <div class="text-center px-3">
       <h1 id="endTitle" class="title"></h1>
       <p id="endText" class="mb-4" style="max-width:420px;margin:0 auto;color:#bbb"></p>
-      <button id="btnBack" class="btn btn-danger d-none me-2">Back to lobby</button>
+      <button id="btnBack" class="btn btn-danger d-none me-2">Back to squad</button>
       <button id="btnQuit" class="btn btn-outline-light">Leave</button>
     </div>
   </div>
 
   <img id="ghost" alt="" aria-hidden="true">
   <div id="flash"></div>
+  <div id="muzzle"></div>
   <div id="grain"></div>
   <div id="static"></div>
 
   <div id="installBanner">
-    Install SCAREE for the full experience
+    Install DEAD STREETS for the full experience
     <button id="btnInstall" class="btn btn-sm btn-danger ms-2">Add to Home Screen</button>
     <button id="btnInstallDismiss" class="btn btn-sm btn-link text-secondary">Later</button>
   </div>

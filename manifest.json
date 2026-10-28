@@ -1,13 +1,13 @@
 {
-  "name": "SCAREE – Co-op Horror",
-  "short_name": "SCAREE",
-  "description": "4-player co-op horror. Don't go in alone.",
+  "name": "DEAD STREETS – Co-op Survival",
+  "short_name": "DEAD STREETS",
+  "description": "4-player co-op zombie survival. Clear the town. Reach the extraction.",
   "start_url": "./index.html",
   "scope": "./",
   "display": "fullscreen",
   "orientation": "landscape",
-  "background_color": "#000000",
-  "theme_color": "#000000",
+  "background_color": "#0a0a0a",
+  "theme_color": "#0a0a0a",
   "categories": ["games", "entertainment"],
   "icons": [
     {

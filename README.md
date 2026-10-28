@@ -1,37 +1,33 @@
-# SCAREE – Co-op Horror PWA
+# DEAD STREETS – Co-op Zombie Survival PWA
 
-Polished version with **Granny / Slenderman-inspired visuals**.
+Complete redesign: abandoned town, proper zombies, guns, safe zones, 5 progressive sectors.
 
-Tall thin stalkers with glowing red eyes, floating translucent wraiths, low crawling horrors, dirty blood-stained asylum walls, heavy fog, dust motes, proximity static (Slenderman style), and strong jumpscares with a detailed screaming face.
+## Gameplay
 
-## Features
-
-- Up to 4-player co-op via Firebase
-- Full Solo mode
-- 7 chapters
-- Music boxes, Fire Axe, batteries, flares, journal notes
-- Enemies: Stalker, Wraith (light-weak), Crawler, final Warden boss
-- Offline support after first load
-- Mobile + desktop controls
+- Explore open town streets with buildings, street lights, and abandoned vehicles atmosphere
+- **Zombies** actually look like zombies (walkers, runners, brutes) and actively chase players
+- **Guns**: Pistol and Shotgun with ammo, reloading, muzzle flash
+- **Safe zones** (green rings) – restock weapons, ammo, medkits; zombies deal no damage inside
+- **5 sectors**: Outskirts → Residential → Downtown → Hospital District → Extraction Point
+- Co-op (up to 4) + Solo mode
+- Story notes and cinematic prologue/epilogue
 
 ## Controls
 
-**Desktop:** Click canvas to lock mouse · WASD · Shift sprint · F flashlight · E interact · R flare · Click/Space attack  
+| Action | Desktop | Mobile |
+|--------|---------|--------|
+| Move | WASD | Left stick |
+| Look | Mouse (click to lock) | Drag right side |
+| Fire | LMB / Space | 🔫 |
+| Reload | R | 🔄 |
+| Interact | E | ✋ |
+| Flashlight | F | 🔦 |
+| Sprint | Shift | 🏃 |
 
-**Mobile:** Left stick · drag right side to look · 🔦 🏃 ⚔ ✋ 🕯  
-
-Use headphones.
-
-## Firebase setup
-
-1. Enable Email/Password + Google sign-in
-2. Add your domain to Authorized domains
-3. Publish the rules from `database.rules.json`
-
-## Run locally
+## Run
 
 ```bash
 npx serve .
 ```
 
-Then open the URL and install as PWA if desired.
+Then open the URL. Install as PWA for best experience. Headphones recommended.
