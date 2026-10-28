@@ -3,124 +3,155 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
-  <meta name="theme-color" content="#0a0a0a">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="mobile-web-app-capable" content="yes">
-  <meta name="description" content="DEAD STREETS – 4-player co-op zombie survival. Clear the town. Reach extraction.">
-  <title>DEAD STREETS – Co-op Survival</title>
-  <link rel="manifest" href="manifest.json">
-  <link rel="apple-touch-icon" href="icons/icon-192.png">
-  <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="css/style.css">
+  <meta name="theme-color" content="#1a2438">
+  <title>Ember &amp; Echo</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <section id="auth" class="screen d-none">
-    <div class="card panel p-4">
-      <h1 class="title text-center mb-1">DEAD STREETS</h1>
-      <p class="text-center text-secondary small mb-3">The outbreak took the town. Clear the streets. Reach extraction. Up to 4 survivors.</p>
-      <input id="nick" class="form-control mb-2" placeholder="Nickname (for sign up)" maxlength="16" autocomplete="username">
-      <input id="email" type="email" class="form-control mb-2" placeholder="Email" autocomplete="email">
-      <input id="pass" type="password" class="form-control mb-3" placeholder="Password (6+ chars)" autocomplete="current-password">
-      <div class="d-grid gap-2">
-        <button id="btnLogin" class="btn btn-danger">Log in</button>
-        <button id="btnReg" class="btn btn-outline-danger">Create account</button>
-        <button id="btnGoogle" class="btn btn-outline-light">Continue with Google</button>
+  <div id="titleScreen" class="overlay">
+    <div class="panel">
+      <h1 class="title">EMBER &amp; ECHO</h1>
+      <p class="sub">A two-player platformer. You cannot finish it alone.</p>
+      <p class="blurb">Two souls wake in the Hollowlands. Each carries half a broken lantern. Find the Four Shards of the First Dawn — together.</p>
+      <input id="nameInput" class="field" maxlength="16" value="Traveler" placeholder="Your name">
+      <div class="row">
+        <button id="btnCreate" class="btn primary">Create Room</button>
+        <button id="btnJoin" class="btn">Join Room</button>
+        <button id="btnHow" class="btn ghost">How to Play</button>
       </div>
-      <div id="authErr" class="text-danger small mt-2 text-center"></div>
-      <p class="text-center text-secondary small mt-3 mb-0">Headphones recommended · Works offline after first load</p>
-    </div>
-  </section>
-
-  <section id="menu" class="screen d-none">
-    <div class="card panel p-4">
-      <h2 class="title text-center">OUTBREAK</h2>
-      <p class="text-center small text-secondary mb-3">
-        Survivor: <b id="who"></b><br>
-        Furthest sector reached: <b id="best">0</b>/5
-      </p>
-      <button id="btnCreate" class="btn btn-danger w-100 mb-2">Create squad</button>
-      <button id="btnSolo" class="btn btn-outline-danger w-100 mb-3">Solo run</button>
-      <div class="input-group mb-2">
-        <input id="joinCode" class="form-control text-uppercase" placeholder="Squad code" maxlength="5" autocomplete="off">
-        <button id="btnJoin" class="btn btn-outline-danger">Join</button>
+      <div id="joinRow" class="row hidden">
+        <input id="codeInput" class="field code" maxlength="6" placeholder="CODE">
+        <button id="btnJoinGo" class="btn primary">Enter</button>
       </div>
-      <div id="menuErr" class="text-danger small text-center"></div>
-      <button id="btnOut" class="btn btn-sm btn-link text-secondary mt-2">Log out</button>
+      <div id="shareRow" class="row hidden">
+        <span>Code: <strong id="shareCode"></strong></span>
+        <button id="btnCopy" class="btn small">Copy</button>
+        <button id="btnStart" class="btn primary">Enter Hollowlands</button>
+      </div>
+      <p id="err" class="err"></p>
     </div>
-  </section>
+  </div>
 
-  <section id="lobby" class="screen d-none">
-    <div class="card panel p-4">
-      <h2 class="title text-center">Squad <span id="lobCode"></span></h2>
-      <p class="text-center small text-secondary">Share this code. Max 4 survivors.</p>
-      <ul id="lobPlayers" class="list-group mb-3"></ul>
-      <select id="startLvl" class="form-select mb-2 d-none"></select>
-      <button id="btnStart" class="btn btn-danger w-100 d-none">Deploy into town</button>
-      <div id="lobWait" class="text-center text-secondary small">Waiting for squad lead…</div>
-      <button id="btnLeave" class="btn btn-sm btn-link text-secondary mt-2">Leave</button>
+  <div id="howPanel" class="overlay hidden">
+    <div class="panel">
+      <h2>How to Play</h2>
+      <ul>
+        <li>Create a room and share the code. Partner joins on another device/tab.</li>
+        <li><b>Move</b> A/D or arrows · <b>Jump</b> W / Space · <b>Interact</b> E (pick up crates, levers, NPCs).</li>
+        <li>Ember is orange, Echo is teal. Solve puzzles that need both of you.</li>
+        <li>Stand on pressure plates, carry crates, pull levers, step on twin runes together.</li>
+        <li>Collect 4 Shards. Reach the shrine in First Dawn together for the ending.</li>
+      </ul>
+      <button id="btnHowClose" class="btn primary">Got it</button>
     </div>
-  </section>
+  </div>
 
-  <section id="game" class="d-none">
-    <canvas id="cv"></canvas>
+  <div id="gameWrap" class="hidden">
+    <canvas id="cv" width="960" height="540"></canvas>
     <div id="hud">
-      <div id="hudTop">
-        <span id="hudKeys"></span>
-        <span id="hudHp"></span>
-        <span id="hudRoom"></span>
+      <div id="shards">
+        <span class="sh" data-i="0">◆</span>
+        <span class="sh" data-i="1">◆</span>
+        <span class="sh" data-i="2">◆</span>
+        <span class="sh" data-i="3">◆</span>
       </div>
-      <div id="hudMsg"></div>
-      <div id="prompt"></div>
-      <div id="crosshair">
-        <div class="ch ch-h"></div>
-        <div class="ch ch-v"></div>
-        <div class="ch ch-dot"></div>
+      <div id="roomInfo"><span id="dot" class="dot red"></span> <span id="codeHud"></span> · <span id="zoneHud"></span></div>
+      <div id="hudBtns">
+        <button id="btnJ" class="btn small">Journal</button>
+        <button id="btnC" class="btn small">Chat</button>
+        <button id="btnH" class="btn small">Help</button>
       </div>
-      <div id="story"></div>
-      <div id="safeBadge">SAFE ZONE</div>
     </div>
-    <div id="joy"><div id="knob"></div></div>
-    <button id="btnLight" class="ctl" title="Flashlight">🔦</button>
-    <button id="btnRun" class="ctl" title="Sprint">🏃</button>
-    <button id="btnAtk" class="ctl" title="Fire">🔫</button>
-    <button id="btnUse" class="ctl" title="Interact">✋</button>
-    <button id="btnReload" class="ctl" title="Reload">🔄</button>
-  </section>
-
-  <div id="note" class="d-none"></div>
-  <div id="cine" class="d-none">
-    <p id="cineText"></p>
-    <button id="cineSkip" class="btn btn-sm btn-outline-secondary">Skip ▸</button>
+    <div id="dialogue" class="hidden">
+      <div id="dlgName"></div>
+      <div id="dlgText"></div>
+      <div class="hint">Space / tap</div>
+    </div>
+    <div id="glyphPanel" class="hidden">
+      <p>Enter the three glyphs</p>
+      <div id="glyphKeys"></div>
+      <div id="glyphEntry"></div>
+      <button id="btnGlyphOk" class="btn primary">Submit</button>
+      <button id="btnGlyphX" class="btn ghost">Close</button>
+    </div>
+    <div id="journal" class="side hidden">
+      <h3>Journal</h3>
+      <div id="jList"></div>
+      <textarea id="jNote" rows="2" placeholder="Add a note…"></textarea>
+      <button id="btnJAdd" class="btn small">Add</button>
+      <button id="btnJX" class="btn ghost">Close</button>
+    </div>
+    <div id="chat" class="side hidden">
+      <h3>Chat</h3>
+      <div id="cList"></div>
+      <div class="row"><input id="cInput" maxlength="120"><button id="btnCSend" class="btn small">Send</button></div>
+      <button id="btnCX" class="btn ghost">Close</button>
+    </div>
+    <div id="dpad" class="hidden">
+      <button data-d="left" class="pad">◀</button>
+      <button data-d="right" class="pad">▶</button>
+    </div>
+    <div id="actBtns" class="hidden">
+      <button id="btnJump" class="pad act">Jump</button>
+      <button id="btnUse" class="pad act">Use</button>
+    </div>
+    <div id="roleLab"></div>
+    <div id="waitMsg" class="hidden">Waiting for partner at the portal…</div>
   </div>
-  <div id="endOverlay" class="d-none">
-    <div class="text-center px-3">
-      <h1 id="endTitle" class="title"></h1>
-      <p id="endText" class="mb-4" style="max-width:420px;margin:0 auto;color:#bbb"></p>
-      <button id="btnBack" class="btn btn-danger d-none me-2">Back to squad</button>
-      <button id="btnQuit" class="btn btn-outline-light">Leave</button>
+
+  <div id="ending" class="overlay hidden">
+    <div class="panel">
+      <div id="endText"></div>
+      <button id="btnAgain" class="btn primary hidden">Play again</button>
     </div>
   </div>
 
-  <img id="ghost" alt="" aria-hidden="true">
-  <div id="flash"></div>
-  <div id="muzzle"></div>
-  <div id="grain"></div>
-  <div id="static"></div>
+  <script type="module">
+    import { Net } from './net.js';
+    import { startGame } from './game.js';
+    const $ = id => document.getElementById(id);
+    const err = m => { $('err').textContent = m || ''; };
+    let pending = null;
 
-  <div id="installBanner">
-    Install DEAD STREETS for the full experience
-    <button id="btnInstall" class="btn btn-sm btn-danger ms-2">Add to Home Screen</button>
-    <button id="btnInstallDismiss" class="btn btn-sm btn-link text-secondary">Later</button>
-  </div>
+    if (matchMedia('(pointer:coarse)').matches) document.body.classList.add('touch');
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-  <script type="module" src="js/main.js"></script>
-  <script>
-    if ('serviceWorker' in navigator) {
-      addEventListener('load', () => navigator.serviceWorker.register('./sw.js').catch(() => {}));
-    }
+    $('btnHow').onclick = () => $('howPanel').classList.remove('hidden');
+    $('btnHowClose').onclick = () => $('howPanel').classList.add('hidden');
+    $('btnH').onclick = () => $('howPanel').classList.remove('hidden');
+    $('btnJoin').onclick = () => { $('joinRow').classList.toggle('hidden'); $('shareRow').classList.add('hidden'); };
+
+    $('btnCreate').onclick = async () => {
+      err('Creating…');
+      try {
+        const name = $('nameInput').value.trim() || 'Traveler';
+        pending = await Net.createRoom(name);
+        $('shareCode').textContent = pending;
+        $('shareRow').classList.remove('hidden');
+        $('joinRow').classList.add('hidden');
+        err('');
+      } catch (e) { err(e.message || String(e)); }
+    };
+    $('btnCopy').onclick = () => {
+      navigator.clipboard?.writeText($('shareCode').textContent);
+      $('btnCopy').textContent = 'Copied!';
+      setTimeout(() => $('btnCopy').textContent = 'Copy', 1200);
+    };
+    $('btnStart').onclick = () => {
+      if (!pending) return;
+      $('titleScreen').classList.add('hidden');
+      startGame(pending, $('nameInput').value.trim() || 'Traveler');
+    };
+    $('btnJoinGo').onclick = async () => {
+      err('Joining…');
+      try {
+        const name = $('nameInput').value.trim() || 'Traveler';
+        const code = $('codeInput').value.trim().toUpperCase();
+        if (!/^[A-Z0-9]{6}$/.test(code)) throw new Error('Need 6-character code');
+        await Net.joinRoom(code, name);
+        $('titleScreen').classList.add('hidden');
+        startGame(code, name);
+      } catch (e) { err(e.message || String(e)); }
+    };
   </script>
 </body>
 </html>

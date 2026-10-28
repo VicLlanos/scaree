@@ -1,0 +1,126 @@
+:root {
+  --cream: #f6e9d5; --amber: #e8a33d; --teal: #3fb8a8;
+  --navy: #1a2438; --panel: rgba(26,36,56,.95);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body {
+  height: 100%; background: var(--navy); color: var(--cream);
+  font-family: system-ui, sans-serif; overflow: hidden;
+  touch-action: none; user-select: none; -webkit-user-select: none;
+}
+.hidden { display: none !important; }
+.overlay {
+  position: fixed; inset: 0; display: flex; align-items: center; justify-content: center;
+  background: radial-gradient(ellipse at center, #2a3548 0%, #1a2438 70%);
+  z-index: 50; padding: 1rem; overflow: auto;
+}
+.panel {
+  background: var(--panel); border: 2px solid #3a4a68; border-radius: 8px;
+  padding: 1.4rem 1.6rem; max-width: 440px; width: 100%;
+  box-shadow: 0 0 40px rgba(0,0,0,.5); text-align: center;
+}
+.title {
+  font-size: clamp(1.7rem, 6vw, 2.5rem); letter-spacing: .16em;
+  background: linear-gradient(135deg, var(--amber), #f0c060, var(--teal));
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+  filter: drop-shadow(0 0 10px rgba(232,163,61,.4)); margin-bottom: .35rem;
+}
+.sub { color: #aab8c8; font-size: .9rem; margin-bottom: .6rem; }
+.blurb { font-size: .82rem; line-height: 1.5; color: #c8d0d8; margin-bottom: 1rem; text-align: left; }
+.field {
+  width: 100%; padding: .5rem .7rem; margin-bottom: .55rem;
+  border: 1px solid #3a4a68; border-radius: 4px; background: #121a28; color: var(--cream); font-size: 1rem;
+}
+.field.code { text-transform: uppercase; letter-spacing: .2em; text-align: center; font-weight: 700; }
+.row { display: flex; flex-wrap: wrap; gap: .4rem; justify-content: center; margin: .4rem 0; align-items: center; }
+.btn {
+  padding: .45rem .9rem; border: 1px solid #4a5a78; border-radius: 4px;
+  background: #2a3548; color: var(--cream); font-size: .88rem; cursor: pointer;
+}
+.btn:hover { background: #3a4560; }
+.btn.primary { background: linear-gradient(135deg, #c07020, var(--amber)); border-color: #e8a33d; color: #1a1408; font-weight: 600; }
+.btn.ghost { background: transparent; }
+.btn.small { padding: .28rem .55rem; font-size: .78rem; }
+.err { color: #e88; font-size: .82rem; min-height: 1.1em; margin-top: .3rem; }
+ul { text-align: left; margin: .7rem 0 1rem; padding-left: 1.1rem; line-height: 1.5; font-size: .88rem; }
+ul li { margin-bottom: .35rem; }
+
+#gameWrap { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; background: #0e1520; }
+#cv { image-rendering: pixelated; image-rendering: crisp-edges; max-width: 100%; max-height: 100%; background: #1a2438; }
+
+#hud {
+  position: fixed; top: 0; left: 0; right: 0; display: flex; justify-content: space-between;
+  align-items: center; padding: .4rem .65rem; pointer-events: none; z-index: 10;
+  text-shadow: 0 1px 3px #000; font-size: .82rem;
+}
+#hud > * { pointer-events: auto; }
+#shards { display: flex; gap: .3rem; }
+.sh { font-size: 1.2rem; color: #445; transition: color .4s, text-shadow .4s; }
+.sh.lit { color: var(--amber); text-shadow: 0 0 8px var(--amber); }
+.sh.lit:nth-child(2) { color: var(--teal); text-shadow: 0 0 8px var(--teal); }
+.sh.lit:nth-child(3) { color: #c8a0e8; text-shadow: 0 0 8px #c8a0e8; }
+.sh.lit:nth-child(4) { color: #f0e8a0; text-shadow: 0 0 8px #f0e8a0; }
+.dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+.dot.green { background: #4c8; box-shadow: 0 0 5px #4c8; }
+.dot.red { background: #c44; box-shadow: 0 0 5px #c44; }
+#hudBtns { display: flex; gap: .25rem; }
+
+#dialogue {
+  position: fixed; left: 50%; bottom: 1rem; transform: translateX(-50%);
+  width: min(92vw, 500px); background: rgba(20,28,42,.94); border: 2px solid #4a5a78;
+  border-radius: 6px; padding: .7rem .9rem; z-index: 15;
+}
+#dlgName { color: var(--amber); font-weight: 600; margin-bottom: .25rem; font-size: .88rem; }
+#dlgText { line-height: 1.4; font-size: .92rem; }
+.hint { margin-top: .3rem; font-size: .72rem; color: #889; }
+
+#glyphPanel {
+  position: fixed; left: 50%; top: 50%; transform: translate(-50%,-50%);
+  background: rgba(20,28,42,.96); border: 2px solid #4a5a78; border-radius: 8px;
+  padding: 1.1rem; z-index: 20; text-align: center; min-width: 260px;
+}
+#glyphKeys { display: flex; gap: .35rem; justify-content: center; margin: .6rem 0; flex-wrap: wrap; }
+#glyphKeys button {
+  width: 40px; height: 40px; font-size: 1.15rem; border: 1px solid #5a6a88;
+  background: #2a3548; color: var(--cream); border-radius: 4px; cursor: pointer;
+}
+#glyphEntry { min-height: 1.5em; font-size: 1.3rem; letter-spacing: .25em; margin-bottom: .55rem; color: var(--amber); }
+
+.side {
+  position: fixed; top: 2.8rem; right: .5rem; width: min(280px, 90vw); max-height: 65vh;
+  overflow: auto; background: rgba(20,28,42,.96); border: 2px solid #4a5a78;
+  border-radius: 6px; padding: .7rem; z-index: 18;
+}
+.side h3 { margin-bottom: .4rem; color: var(--amber); font-size: .95rem; }
+#jList, #cList { font-size: .8rem; line-height: 1.35; margin-bottom: .5rem; max-height: 38vh; overflow-y: auto; }
+#jList div, #cList div { padding: .25rem 0; border-bottom: 1px solid #2a3548; }
+#jNote, #cInput {
+  width: 100%; padding: .35rem; margin-bottom: .35rem; border: 1px solid #3a4a68;
+  border-radius: 3px; background: #121a28; color: var(--cream); font-size: .82rem;
+}
+
+#dpad {
+  position: fixed; left: 10px; bottom: 10px; z-index: 12; display: none; gap: 6px;
+}
+body.touch #dpad { display: flex; }
+#actBtns {
+  position: fixed; right: 10px; bottom: 10px; z-index: 12; display: none; flex-direction: column; gap: 6px;
+}
+body.touch #actBtns { display: flex; }
+.pad {
+  width: 56px; height: 56px; border: 1px solid #4a5a78; border-radius: 10px;
+  background: rgba(30,40,56,.8); color: var(--cream); font-size: 1.1rem;
+  display: flex; align-items: center; justify-content: center;
+}
+.pad.act { width: 64px; height: 48px; font-size: .85rem; }
+.pad:active { background: rgba(60,80,110,.9); }
+
+#roleLab {
+  position: fixed; bottom: .4rem; left: 50%; transform: translateX(-50%);
+  font-size: .72rem; color: #889; z-index: 10; pointer-events: none;
+}
+#waitMsg {
+  position: fixed; top: 40%; left: 50%; transform: translate(-50%,-50%);
+  background: rgba(20,28,42,.9); border: 1px solid #4a5a78; padding: .6rem 1rem;
+  border-radius: 6px; z-index: 16; font-size: .9rem;
+}
