@@ -17,7 +17,7 @@ import {
 import { firebaseConfig } from "./firebase-config.js";
 
 const T = THREE;
-const S = 3;
+const S = 3.4;  // wider corridors
 const $ = (id) => document.getElementById(id);
 
 const app = initializeApp(firebaseConfig);
@@ -847,43 +847,118 @@ function faceImg() {
 
 /* ---------- ENEMY MODELS – Granny / Slenderman inspired ---------- */
 const DEF = {
-  S: { hp: 4, sp: 1.4, r: 1.3 },
-  W: { hp: 3, sp: 1.1, r: 1.2, pass: 1 },
-  C: { hp: 2, sp: 2.5, r: 1.1 },
-  B: { hp: 18, sp: 1.55, r: 2.0 }
+  S: { hp: 5, sp: 1.35, r: 1.45 },
+  W: { hp: 3, sp: 1.05, r: 1.25, pass: 1 },
+  C: { hp: 2, sp: 2.4, r: 1.2 },
+  B: { hp: 20, sp: 1.5, r: 2.3 }
 };
+
 
 function mkItem(t) {
   const g = new T.Group();
-  const em = (c, i = 0.9) =>
-    new T.MeshStandardMaterial({ color: c, emissive: c, emissiveIntensity: i });
-  if (t === "bat")
-    g.add(new T.Mesh(new T.CylinderGeometry(0.08, 0.08, 0.32, 8), em(0x33ff66)));
-  else if (t === "flare")
-    g.add(new T.Mesh(new T.CylinderGeometry(0.05, 0.05, 0.42, 8), em(0xff3322)));
-  else if (t === "note")
-    g.add(
-      new T.Mesh(
-        new T.PlaneGeometry(0.32, 0.42),
-        new T.MeshStandardMaterial({
-          color: 0xeeeecc,
-          emissive: 0xaaaa88,
-          emissiveIntensity: 0.7,
-          side: T.DoubleSide
-        })
-      )
+  const std = (col, rough = 0.7, metal = 0) =>
+    new T.MeshStandardMaterial({ color: col, roughness: rough, metalness: metal });
+  const em = (col, inten = 1.0) =>
+    new T.MeshStandardMaterial({ color: col, emissive: col, emissiveIntensity: inten, roughness: 0.4 });
+
+  if (t === "bat") {
+    // Realistic battery pack
+    const body = new T.Mesh(new T.BoxGeometry(0.22, 0.38, 0.14), em(0x22cc44, 0.9));
+    body.position.y = 0.19;
+    const top = new T.Mesh(new T.BoxGeometry(0.18, 0.06, 0.1), std(0x111111, 0.5, 0.3));
+    top.position.y = 0.41;
+    const tip = new T.Mesh(new T.CylinderGeometry(0.03, 0.03, 0.08, 8), std(0xcccccc, 0.3, 0.8));
+    tip.position.set(0, 0.48, 0);
+    g.add(body, top, tip);
+  } else if (t === "flare") {
+    // Flare stick
+    const tube = new T.Mesh(new T.CylinderGeometry(0.045, 0.05, 0.55, 10), std(0xcc2222, 0.5));
+    tube.position.y = 0.28;
+    const cap = new T.Mesh(new T.CylinderGeometry(0.055, 0.055, 0.08, 10), std(0x222222, 0.4));
+    cap.position.y = 0.58;
+    const glow = new T.Mesh(new T.SphereGeometry(0.06, 8, 8), em(0xff4422, 1.4));
+    glow.position.y = 0.62;
+    g.add(tube, cap, glow);
+  } else if (t === "note") {
+    // Folded journal page
+    const page = new T.Mesh(
+      new T.PlaneGeometry(0.38, 0.5),
+      new T.MeshStandardMaterial({
+        color: 0xe8e0c0,
+        emissive: 0x887766,
+        emissiveIntensity: 0.55,
+        side: T.DoubleSide,
+        roughness: 0.9
+      })
     );
-  else {
-    const h = new T.Mesh(
-      new T.BoxGeometry(0.06, 0.72, 0.06),
-      new T.MeshStandardMaterial({ color: 0x4a2a0a })
+    page.rotation.x = -0.3;
+    g.add(page);
+  } else if (t === "axe" || t === "key") {
+    // Proper fire axe
+    // Handle
+    const handle = new T.Mesh(
+      new T.CylinderGeometry(0.035, 0.04, 0.85, 8),
+      std(0x3a2210, 0.9)
     );
-    const b = new T.Mesh(
-      new T.BoxGeometry(0.36, 0.24, 0.05),
-      new T.MeshStandardMaterial({ color: 0x8899aa, metalness: 0.85, roughness: 0.25 })
+    handle.position.y = 0.15;
+    // Grip wrap
+    const grip = new T.Mesh(
+      new T.CylinderGeometry(0.045, 0.045, 0.22, 8),
+      std(0x1a1008, 1)
     );
-    b.position.set(0.14, 0.3, 0);
-    g.add(h, b);
+    grip.position.y = -0.15;
+    // Axe head block
+    const head = new T.Mesh(
+      new T.BoxGeometry(0.12, 0.18, 0.08),
+      std(0x555555, 0.35, 0.85)
+    );
+    head.position.set(0.08, 0.55, 0);
+    // Blade
+    const bladeGeo = new T.BoxGeometry(0.32, 0.22, 0.025);
+    const blade = new T.Mesh(bladeGeo, std(0x888899, 0.25, 0.9));
+    blade.position.set(0.22, 0.55, 0);
+    // Spike on back
+    const spike = new T.Mesh(
+      new T.ConeGeometry(0.04, 0.18, 6),
+      std(0x666677, 0.3, 0.85)
+    );
+    spike.rotation.z = Math.PI / 2;
+    spike.position.set(-0.05, 0.55, 0);
+    g.add(handle, grip, head, blade, spike);
+  } else {
+    // Music box (the "key" items)
+    // Wooden base
+    const base = new T.Mesh(
+      new T.BoxGeometry(0.42, 0.18, 0.32),
+      std(0x5a3a1a, 0.75)
+    );
+    base.position.y = 0.09;
+    // Lid
+    const lid = new T.Mesh(
+      new T.BoxGeometry(0.42, 0.05, 0.32),
+      std(0x6a4a28, 0.7)
+    );
+    lid.position.y = 0.205;
+    // Gold trim
+    const trim = new T.Mesh(
+      new T.BoxGeometry(0.44, 0.02, 0.34),
+      std(0xc9a84c, 0.3, 0.7)
+    );
+    trim.position.y = 0.18;
+    // Glowing music mechanism (visible through open-ish lid)
+    const mech = new T.Mesh(
+      new T.CylinderGeometry(0.08, 0.08, 0.06, 12),
+      em(0xffcc44, 1.6)
+    );
+    mech.position.y = 0.16;
+    // Small crank
+    const crank = new T.Mesh(
+      new T.CylinderGeometry(0.015, 0.015, 0.12, 6),
+      std(0xaaaaaa, 0.3, 0.8)
+    );
+    crank.rotation.z = Math.PI / 2;
+    crank.position.set(0.24, 0.12, 0);
+    g.add(base, lid, trim, mech, crank);
   }
   return g;
 }
@@ -892,118 +967,166 @@ function mkEnemy(t) {
   const g = new T.Group();
 
   if (t === "W") {
-    // Wraith – floating translucent child-like / choir spirit
+    // === WRAITH – floating, elongated, faceless spirit ===
     const mt = new T.MeshBasicMaterial({
-      color: 0xa0d0ff,
+      color: 0x88ccee,
       transparent: true,
-      opacity: 0.38,
+      opacity: 0.42,
       depthWrite: false
     });
-    // elongated body
-    const body = new T.Mesh(new T.ConeGeometry(0.45, 2.1, 12, 1, true), mt);
-    body.position.y = 1.15;
-    // small head
-    const head = new T.Mesh(new T.SphereGeometry(0.2, 10, 8), mt);
-    head.position.y = 2.35;
-    // black empty eyes
-    const eyeMat = new T.MeshBasicMaterial({ color: 0x000000 });
-    [-0.07, 0.07].forEach((x) => {
-      const e = new T.Mesh(new T.SphereGeometry(0.045, 6, 6), eyeMat);
-      e.position.set(x, 2.38, 0.16);
+    // Long flowing body
+    const body = new T.Mesh(new T.ConeGeometry(0.55, 2.4, 10, 1, true), mt);
+    body.position.y = 1.2;
+    // Small distorted head
+    const head = new T.Mesh(new T.SphereGeometry(0.22, 8, 6), mt);
+    head.scale.set(0.9, 1.3, 0.85);
+    head.position.y = 2.55;
+    // Hollow black eyes
+    const eyeM = new T.MeshBasicMaterial({ color: 0x000000 });
+    [-0.08, 0.08].forEach((x) => {
+      const e = new T.Mesh(new T.SphereGeometry(0.055, 6, 6), eyeM);
+      e.position.set(x, 2.58, 0.15);
       g.add(e);
     });
-    // soft blue light
-    const l = new T.PointLight(0x66aaff, 0.55, 5);
-    l.position.y = 1.9;
+    // Soft glow
+    const l = new T.PointLight(0x66aaff, 0.7, 6);
+    l.position.y = 2.0;
     g.add(body, head, l);
     return g;
   }
 
   if (t === "C") {
-    // Crawler – low, fast, spider-like horror
-    const m = new T.MeshStandardMaterial({ color: 0x100808, roughness: 1 });
-    const body = new T.Mesh(new T.SphereGeometry(0.38, 10, 8), m);
-    body.scale.set(1.1, 0.45, 1.6);
-    body.position.y = 0.32;
+    // === CRAWLER – aggressive multi-legged horror ===
+    const m = new T.MeshStandardMaterial({ color: 0x0c0606, roughness: 1 });
+    // Main body – flattened and long
+    const body = new T.Mesh(new T.SphereGeometry(0.42, 10, 8), m);
+    body.scale.set(1.15, 0.42, 1.7);
+    body.position.y = 0.28;
     g.add(body);
-    // 6 legs
-    for (let i = 0; i < 6; i++) {
-      const side = i < 3 ? -1 : 1;
-      const leg = new T.Mesh(new T.CylinderGeometry(0.03, 0.02, 0.75, 4), m);
-      leg.position.set(side * 0.42, 0.28, ((i % 3) - 1) * 0.38);
-      leg.rotation.z = side * 1.15;
-      leg.rotation.x = (i % 3 - 1) * 0.25;
+    // Segmented rear
+    const rear = new T.Mesh(new T.SphereGeometry(0.28, 8, 6), m);
+    rear.scale.set(0.9, 0.5, 1.1);
+    rear.position.set(0, 0.22, -0.55);
+    g.add(rear);
+    // 8 legs for more insectile feel
+    for (let i = 0; i < 8; i++) {
+      const side = i < 4 ? -1 : 1;
+      const zOff = ((i % 4) - 1.5) * 0.28;
+      const leg = new T.Mesh(new T.CylinderGeometry(0.028, 0.018, 0.85, 4), m);
+      leg.position.set(side * 0.48, 0.22, zOff);
+      leg.rotation.z = side * 1.25;
+      leg.rotation.x = zOff * 0.6;
       g.add(leg);
+      // Foot
+      const foot = new T.Mesh(new T.SphereGeometry(0.04, 5, 5), m);
+      foot.position.set(side * 0.78, 0.02, zOff * 1.1);
+      g.add(foot);
     }
-    // glowing red eyes
-    const em = new T.MeshBasicMaterial({ color: 0xff2200 });
-    [-0.1, 0.1].forEach((x) => {
-      const e = new T.Mesh(new T.SphereGeometry(0.045, 6, 6), em);
-      e.position.set(x, 0.38, 0.55);
+    // Multiple red eyes
+    const em = new T.MeshBasicMaterial({ color: 0xff1100 });
+    [[-0.12, 0.12], [0.12, 0.12], [0, 0.18]].forEach(([x, z]) => {
+      const e = new T.Mesh(new T.SphereGeometry(0.04, 6, 6), em);
+      e.position.set(x, 0.38, z + 0.35);
       g.add(e);
     });
+    // Jaw
+    const jaw = new T.Mesh(new T.BoxGeometry(0.25, 0.08, 0.2), m);
+    jaw.position.set(0, 0.18, 0.55);
+    g.add(jaw);
     return g;
   }
 
-  // Stalker (S) and Boss Warden (B) – tall, thin, Slenderman / Granny hybrid
+  // === STALKER (S) and WARDEN BOSS (B) ===
+  // Tall, impossibly thin, Slenderman + Granny hybrid
   const isBoss = t === "B";
-  const scale = isBoss ? 2.15 : 1.55;
-  const skin = isBoss ? 0x1a0a0a : 0x2a2218;
-  const suit = isBoss ? 0x0a0505 : 0x111111;
+  const scale = isBoss ? 2.35 : 1.7;
+  const skinCol = isBoss ? 0x120808 : 0x1e1810;
+  const clothCol = isBoss ? 0x080404 : 0x0c0c0c;
 
-  // extremely tall thin body
-  const bodyMat = new T.MeshStandardMaterial({ color: suit, roughness: 0.95 });
-  const body = new T.Mesh(new T.CylinderGeometry(0.18, 0.22, 2.4, 7), bodyMat);
-  body.position.y = 1.4;
+  const skin = new T.MeshStandardMaterial({ color: skinCol, roughness: 0.85 });
+  const cloth = new T.MeshStandardMaterial({ color: clothCol, roughness: 0.95 });
 
-  // elongated head (faceless / almost featureless)
-  const headMat = new T.MeshStandardMaterial({ color: skin, roughness: 0.7 });
-  const head = new T.Mesh(new T.SphereGeometry(0.22, 10, 8), headMat);
-  head.scale.set(0.85, 1.35, 0.9);
-  head.position.y = 2.85;
+  // Extremely elongated torso
+  const torso = new T.Mesh(new T.CylinderGeometry(0.16, 0.2, 2.6, 7), cloth);
+  torso.position.y = 1.5;
 
-  // sunken red eyes (only light source on face)
-  const eyeMat = new T.MeshBasicMaterial({ color: 0xff0000 });
-  [-0.07, 0.07].forEach((x) => {
-    const e = new T.Mesh(new T.SphereGeometry(0.04, 6, 6), eyeMat);
-    e.position.set(x, 2.9, 0.16);
-    g.add(e);
+  // Shoulders
+  const shoulders = new T.Mesh(new T.BoxGeometry(0.7, 0.18, 0.28), cloth);
+  shoulders.position.y = 2.75;
+
+  // Elongated oval head (almost featureless)
+  const head = new T.Mesh(new T.SphereGeometry(0.24, 9, 7), skin);
+  head.scale.set(0.75, 1.55, 0.8);
+  head.position.y = 3.15;
+
+  // Deep black eye sockets with tiny red glow
+  const socketM = new T.MeshBasicMaterial({ color: 0x000000 });
+  const eyeGlow = new T.MeshBasicMaterial({ color: 0xff0000 });
+  [-0.09, 0.09].forEach((x) => {
+    const socket = new T.Mesh(new T.SphereGeometry(0.07, 6, 6), socketM);
+    socket.position.set(x, 3.18, 0.14);
+    g.add(socket);
+    const pupil = new T.Mesh(new T.SphereGeometry(0.028, 5, 5), eyeGlow);
+    pupil.position.set(x, 3.18, 0.19);
+    g.add(pupil);
   });
 
-  // long thin arms
+  // Thin stretched mouth slit
+  const mouth = new T.Mesh(new T.BoxGeometry(0.14, 0.025, 0.04), socketM);
+  mouth.position.set(0, 2.95, 0.16);
+  g.add(mouth);
+
+  // Impossibly long arms
   [-1, 1].forEach((s) => {
-    const arm = new T.Mesh(
-      new T.CylinderGeometry(0.04, 0.03, 1.9, 5),
-      bodyMat
-    );
-    arm.position.set(s * 0.32, 1.5, 0.08);
-    arm.rotation.set(-0.4, 0, s * 0.18);
-    g.add(arm);
-    // claw-like hands
-    const hand = new T.Mesh(
-      new T.SphereGeometry(0.06, 5, 5),
-      new T.MeshStandardMaterial({ color: skin, roughness: 0.8 })
-    );
-    hand.position.set(s * 0.55, 0.55, 0.35);
-    g.add(hand);
+    // Upper arm
+    const upper = new T.Mesh(new T.CylinderGeometry(0.045, 0.035, 1.5, 5), cloth);
+    upper.position.set(s * 0.38, 2.0, 0.05);
+    upper.rotation.z = s * 0.25;
+    upper.rotation.x = -0.35;
+    g.add(upper);
+    // Lower arm / forearm
+    const lower = new T.Mesh(new T.CylinderGeometry(0.035, 0.028, 1.4, 5), skin);
+    lower.position.set(s * 0.62, 1.05, 0.35);
+    lower.rotation.z = s * 0.15;
+    lower.rotation.x = -0.5;
+    g.add(lower);
+    // Long fingers
+    for (let f = 0; f < 4; f++) {
+      const finger = new T.Mesh(
+        new T.CylinderGeometry(0.012, 0.008, 0.35, 4),
+        skin
+      );
+      finger.position.set(s * 0.72 + (f - 1.5) * 0.04, 0.35, 0.55 + f * 0.02);
+      finger.rotation.x = -0.9;
+      g.add(finger);
+    }
   });
 
-  // thin legs
+  // Thin long legs
   [-1, 1].forEach((s) => {
-    const leg = new T.Mesh(
-      new T.CylinderGeometry(0.07, 0.05, 1.3, 5),
-      bodyMat
-    );
-    leg.position.set(s * 0.12, 0.55, 0);
-    g.add(leg);
+    const thigh = new T.Mesh(new T.CylinderGeometry(0.07, 0.055, 1.2, 5), cloth);
+    thigh.position.set(s * 0.13, 0.65, 0);
+    g.add(thigh);
+    const shin = new T.Mesh(new T.CylinderGeometry(0.05, 0.04, 1.0, 5), cloth);
+    shin.position.set(s * 0.13, -0.15, 0.05);
+    g.add(shin);
+    // Flat foot
+    const foot = new T.Mesh(new T.BoxGeometry(0.12, 0.05, 0.28), skin);
+    foot.position.set(s * 0.13, -0.65, 0.1);
+    g.add(foot);
   });
 
-  // ominous red point light on head
-  const l = new T.PointLight(0xff0000, isBoss ? 1.1 : 0.7, isBoss ? 9 : 6);
-  l.position.y = 2.9;
+  // Strong red point light from the face
+  const l = new T.PointLight(0xff0000, isBoss ? 1.3 : 0.85, isBoss ? 11 : 7);
+  l.position.set(0, 3.15, 0.3);
 
-  g.add(body, head, l);
+  g.add(torso, shoulders, head, l);
   g.scale.setScalar(scale);
+  // Raise so feet sit on floor after scaling
+  g.children.forEach((ch) => {
+    if (ch.isLight) return;
+    // already positioned relative
+  });
   return g;
 }
 
@@ -1016,7 +1139,7 @@ function startLevel(level, seed) {
   audio();
   const c = CH[level - 1];
   const r = rng(seed);
-  const N = Math.min(4 + level, 11);
+  const N = Math.min(6 + level + 1, 14);  // wider maps
   const m = gen(N, r);
   const W = m.length;
 
@@ -1032,7 +1155,7 @@ function startLevel(level, seed) {
 
   const scene = new T.Scene();
   scene.background = new T.Color(c.fog);
-  scene.fog = new T.FogExp2(c.fog, 0.08 + level * 0.005);
+  scene.fog = new T.FogExp2(c.fog, 0.065 + level * 0.004);
 
   const cam = new T.PerspectiveCamera(70, 1, 0.1, 50);
   cam.rotation.order = "YXZ";
@@ -1119,15 +1242,9 @@ function startLevel(level, seed) {
   // Music boxes (keys)
   const keys = Array.from({ length: 3 + (level >> 1) }, () => {
     const [x, z] = cc(...take());
-    const k = new T.Mesh(
-      new T.BoxGeometry(0.28, 0.48, 0.12),
-      new T.MeshStandardMaterial({
-        color: 0xe8b830,
-        emissive: 0xcc8800,
-        emissiveIntensity: 1.3
-      })
-    );
-    k.position.set(x, 1.05, z);
+    const k = mkItem("key");  // detailed music box
+    k.position.set(x, 0.55, z);
+    k.scale.setScalar(1.25);
     scene.add(k);
     return { m: k, x, z, taken: false };
   });
@@ -1147,9 +1264,9 @@ function startLevel(level, seed) {
 
   // Held axe
   const axe = mkItem("axe");
-  axe.scale.setScalar(1.05);
-  axe.position.set(0.36, -0.42, -0.7);
-  axe.rotation.set(0, 0, 0.32);
+  axe.scale.setScalar(0.85);
+  axe.position.set(0.32, -0.38, -0.65);
+  axe.rotation.set(0.15, 0.4, 0.9);
   axe.visible = false;
   cam.add(axe);
 
